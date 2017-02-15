@@ -44,14 +44,14 @@ def get_arguments():
                     'Argument must be greater than zero')
         return float(f)
 
-    parser = argparse.ArgumentParser(description='WaveNet generation script')
+    parser = argparse.ArgumentParser(description='RadNet generation script')
     parser.add_argument(
         'checkpoint', type=str, help='Which model checkpoint to generate from')
     parser.add_argument(
         '--samples',
         type=int,
         default=SAMPLES,
-        help='How many waveform samples to generate')
+        help='How many samples to predict')
     parser.add_argument(
         '--temperature',
         type=_ensure_positive_float,
@@ -67,12 +67,12 @@ def get_arguments():
         '--out_path',
         type=str,
         default=OUTPUT_DIRECTORY,
-        help='Path to output wav file')
+        help='Path to output the samples')
     parser.add_argument(
         '--data_dir',
         type=str,
         default=DATA_DIRECTORY,
-        help='The wav file to start generation from')
+        help='The dir in which are located the samples to predict')
 
     arguments = parser.parse_args()
 
