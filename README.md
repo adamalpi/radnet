@@ -1,4 +1,4 @@
-# radnet
+# RadNet
 Deep neural network for climate science radiation functions
 
 ## Train
