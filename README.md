@@ -35,3 +35,9 @@ tensorboard --logdir ./logdir/
 
 ## Project features
 The model is able to save the model, load a model and keep training it even with other hyperparameters, log loss summaries tensorboard and tune other features. For more help: 
+
+```
+python train.py --help
+python generate.py --help
+```
+
