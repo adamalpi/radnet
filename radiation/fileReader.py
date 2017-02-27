@@ -56,7 +56,7 @@ def normalizeR(r):
 
 def normalize(x, min, max, mean, std):
     # return  (x - min) / (max - min) # min max normalization
-    return (x - mean) / std  # standardization
+    return (x - mean) / std  # standardization - zero-mean normalization
     # return x+100
 
 
@@ -159,6 +159,7 @@ class FileReader(object):
 
     def dequeue(self, num_elements):
         data, label, id = self.queue.dequeue_many(num_elements)
+
         return data, label, id
 
     def queue_switch(self):

@@ -24,7 +24,7 @@ BATCH_SIZE = 128
 DATA_DIRECTORY = './data'
 LOGDIR_ROOT = './logdir'
 CHECKPOINT_EVERY = 2000
-NUM_STEPS = int(1e5)
+NUM_STEPS = 150000
 LEARNING_RATE = 1e-3
 STARTED_DATESTRING = "{0:%Y-%m-%dT%H-%M-%S}".format(datetime.now())
 MOMENTUM = 0.9
@@ -190,9 +190,9 @@ def main():
         data, label, _ = reader.dequeue(args.batch_size)
 
     # Create network.
-    net = RadNetModel()
-
-    loss = net.loss(data, label)
+    with tf.name_scope('create_model'):
+        net = RadNetModel()
+        loss = net.loss(data, label)
 
     optimizer = optimizer_factory[args.optimizer](
                     learning_rate=args.learning_rate,
@@ -213,11 +213,12 @@ def main():
     # train_summary = tf.scalar_summary("train_loss", loss)
     # test_summary = tf.scalar_summary("test_loss", loss)
 
-
     # Set up session
     sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
     init = tf.global_variables_initializer()
-    sess.run(init)
+    print('wuuu')
+    sess.run(init, {net.train_phase(): False})
+    print('waaa')
 
     # Saver for storing checkpoints of the model.
     saver = tf.train.Saver(var_list=tf.trainable_variables())
@@ -261,14 +262,16 @@ def main():
                 with open(timeline_path, 'w') as f:
                     f.write(tl.generate_chrome_trace_format(show_memory=True))
             else:
-                summary, loss_value_train, _ = sess.run([summaries, loss, optim], {reader.queue_switch(): 0})
+                summary, loss_value_train, _ = sess.run([summaries, loss, optim],
+                                                        {reader.queue_switch(): 0, net.train_phase(): True})
                 writer_train.add_summary(summary, step)
 
 
 
 
             if step % 100 == 0:
-                summary, loss_value_test = sess.run([summaries, loss], {reader.queue_switch(): 1})
+                summary, loss_value_test = sess.run([summaries, loss],
+                                                    {reader.queue_switch(): 1, net.train_phase(): False})
                 writer_test.add_summary(summary, step)
 
                 duration = time.time() - start_time
