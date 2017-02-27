@@ -217,7 +217,8 @@ def main():
 
     # Set up session
     sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
-    init = tf.global_variables_initializer()
+    # init = tf.global_variables_initializer()
+    init = tf.initialize_all_variables()
     print('wuuu')
     sess.run(init, {net.train_phase(): False})
     print('waaa')
