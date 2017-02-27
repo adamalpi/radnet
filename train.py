@@ -205,8 +205,8 @@ def main():
     # Set up logging for TensorBoard.
     # writer_train = tf.summary.FileWriter(logdir)
     # writer_test = tf.summary.FileWriter(get_default_logdir(LOGDIR_ROOT, 'test'))
-    writer_train = tf.train.SummaryWritter(logdir)
-    writer_test = tf.train.SummaryWritter(get_default_logdir(LOGDIR_ROOT, 'test'))
+    writer_train = tf.train.SummaryWriter(logdir)
+    writer_test = tf.train.SummaryWriter(get_default_logdir(LOGDIR_ROOT, 'test'))
 
     writer_train.add_graph(tf.get_default_graph())
     writer_test.add_graph(tf.get_default_graph())
