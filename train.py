@@ -20,7 +20,7 @@ from radiation import RadNetModel, FileReader, optimizer_factory
 
 
 # Hyperparameters and other variables
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 DATA_DIRECTORY = './data'
 LOGDIR_ROOT = './logdir'
 CHECKPOINT_EVERY = 2000
