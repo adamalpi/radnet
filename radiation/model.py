@@ -230,6 +230,8 @@ class RadNetModel(object):
         with tf.name_scope('radnet'):
             output = self._create_network(input_batch)
             with tf.name_scope('loss'):
+                print(output.get_shape())
+                print(real_output.get_shape())
                 loss = tf.reduce_mean(tf.squared_difference(output, real_output))
                 tf.scalar_summary('loss', loss)
 
