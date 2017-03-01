@@ -279,9 +279,9 @@ def main():
                 writer_test.add_summary(summary, step)
 
                 duration = time.time() - start_time
-                print('train: step {:d} - loss = {:.3f}, ({:.3f} sec/step)'
+                print('train: step {:d} - loss = {:.5f}, ({:.3f} sec/step)'
                       .format(step, loss_value_train, duration))
-                print('test: step {:d} - loss = {:.3f}, ({:.3f} sec/step)'
+                print('test: step {:d} - loss = {:.5f}, ({:.3f} sec/step)'
                       .format(step, loss_value_test, duration))
 
             if step % args.checkpoint_every == 0:
