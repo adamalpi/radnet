@@ -161,7 +161,7 @@ class RadNetModel(object):
                 var['conv4'] = current
             with tf.variable_scope('fc1'):
                 current = dict()
-                current['w'] = weightInitilization3(2 * 2 * c4_size, fc1_size, weight_stddev)
+                current['w'] = weightInitilization3(1 * 1 * c4_size, fc1_size, weight_stddev)
                 current['b'] = biasInitialization(fc1_size, bias_stddev)
                 current['bn'] = bnInitialization(fc1_size)
                 var['fc1'] = current
@@ -211,6 +211,7 @@ class RadNetModel(object):
         with tf.name_scope('fc1'):
             # Reshape conv3 output to fit fully connected layer input
             fc1 = tf.reshape(conv4, [-1, self.vars['fc1']['w'].get_shape().as_list()[0]])
+            print(fc1.get_shape())
             fc1 = tf.add(tf.matmul(fc1, self.vars['fc1']['w']), self.vars['fc1']['b'])
             fc1 = batchNorm(fc1, [0], self.vars['fc1']['bn'], self.phase_train)
             fc1 = ReLU(fc1)
@@ -225,6 +226,7 @@ class RadNetModel(object):
         with tf.name_scope('out'):
             out = tf.add(tf.matmul(fc2, self.vars['out']['w']), self.vars['out']['b'])
         #(64, 1, 1, 256)
+        #(1024,1024)
         #(16, 1024)
         return out
 
