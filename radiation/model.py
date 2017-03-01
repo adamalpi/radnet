@@ -207,17 +207,14 @@ class RadNetModel(object):
             conv4 = batchNorm(conv4, [0, 1, 2], self.vars['conv4']['bn'], self.phase_train)
             conv4 = ReLU(conv4)
             conv4 = pool2d(conv4, k=2)
-            print(conv4.get_shape())
         with tf.name_scope('fc1'):
             # Reshape conv3 output to fit fully connected layer input
             fc1 = tf.reshape(conv4, [-1, self.vars['fc1']['w'].get_shape().as_list()[0]])
-            print(fc1.get_shape())
             fc1 = tf.add(tf.matmul(fc1, self.vars['fc1']['w']), self.vars['fc1']['b'])
             fc1 = batchNorm(fc1, [0], self.vars['fc1']['bn'], self.phase_train)
             fc1 = ReLU(fc1)
 
-            print(self.vars['fc1']['w'].get_shape())
-            print(fc1.get_shape())
+            #print(fc1.get_shape())
         with tf.name_scope('fc2'):
             # Reshape conv3 output to fit fully connected layer input
             fc2 = tf.add(tf.matmul(fc1, self.vars['fc2']['w']), self.vars['fc2']['b'])
@@ -225,9 +222,6 @@ class RadNetModel(object):
             fc2 = ReLU(fc2)
         with tf.name_scope('out'):
             out = tf.add(tf.matmul(fc2, self.vars['out']['w']), self.vars['out']['b'])
-        #(64, 1, 1, 256)
-        #(1024,1024)
-        #(16, 1024)
         return out
 
     def loss(self, input_batch, real_output):
@@ -237,8 +231,6 @@ class RadNetModel(object):
         with tf.name_scope('radnet'):
             output = self._create_network(input_batch)
             with tf.name_scope('loss'):
-                print(output.get_shape())
-                print(real_output.get_shape())
                 loss = tf.reduce_mean(tf.squared_difference(output, real_output))
                 tf.scalar_summary('loss', loss)
 

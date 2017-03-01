@@ -101,6 +101,9 @@ def load(saver, sess, logdir):
           end="")
 
     ckpt = tf.train.get_checkpoint_state(logdir)
+    print('test')
+    print(ckpt)
+
     if ckpt:
         print("  Checkpoint found: {}".format(ckpt.model_checkpoint_path))
         global_step = int(ckpt.model_checkpoint_path
