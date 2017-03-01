@@ -207,12 +207,14 @@ class RadNetModel(object):
             conv4 = batchNorm(conv4, [0, 1, 2], self.vars['conv4']['bn'], self.phase_train)
             conv4 = ReLU(conv4)
             conv4 = pool2d(conv4, k=2)
+            print(conv4.get_shape())
         with tf.name_scope('fc1'):
             # Reshape conv3 output to fit fully connected layer input
             fc1 = tf.reshape(conv4, [-1, self.vars['fc1']['w'].get_shape().as_list()[0]])
             fc1 = tf.add(tf.matmul(fc1, self.vars['fc1']['w']), self.vars['fc1']['b'])
             fc1 = batchNorm(fc1, [0], self.vars['fc1']['bn'], self.phase_train)
             fc1 = ReLU(fc1)
+            print(fc1.get_shape())
         with tf.name_scope('fc2'):
             # Reshape conv3 output to fit fully connected layer input
             fc2 = tf.add(tf.matmul(fc1, self.vars['fc2']['w']), self.vars['fc2']['b'])
