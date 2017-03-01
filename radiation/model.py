@@ -161,7 +161,7 @@ class RadNetModel(object):
                 var['conv4'] = current
             with tf.variable_scope('fc1'):
                 current = dict()
-                current['w'] = weightInitilization3(1 * 1 * c4_size, fc1_size, weight_stddev)
+                current['w'] = weightInitilization3(2 * 2 * c4_size, fc1_size, weight_stddev)
                 current['b'] = biasInitialization(fc1_size, bias_stddev)
                 current['bn'] = bnInitialization(fc1_size)
                 var['fc1'] = current
@@ -201,7 +201,7 @@ class RadNetModel(object):
             conv3 = conv2d(conv2, self.vars['conv3']['w'], self.vars['conv3']['b'], strides=1)
             conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv3']['bn'], self.phase_train)
             conv3 = ReLU(conv3)
-            conv3 = pool2d(conv3, k=2)
+            conv3 = pool2d(conv3, k=1)
         with tf.name_scope('conv4'):
             conv4 = conv2d(conv3, self.vars['conv4']['w'], self.vars['conv4']['b'], strides=1)
             conv4 = batchNorm(conv4, [0, 1, 2], self.vars['conv4']['bn'], self.phase_train)

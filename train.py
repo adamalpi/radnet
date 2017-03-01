@@ -219,9 +219,7 @@ def main():
     sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
     # init = tf.global_variables_initializer()
     init = tf.initialize_all_variables()
-    print('wuuu')
     sess.run(init, {net.train_phase(): False})
-    print('waaa')
 
     # Saver for storing checkpoints of the model.
     saver = tf.train.Saver(var_list=tf.trainable_variables())
