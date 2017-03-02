@@ -93,17 +93,32 @@ def main():
         reader = FileReader(args.data_dir, coord)
         data, label, id_file = reader.dequeue(1)
 
-    net = RadNetModel()
-    prediction = net.predict(data, label, id_file)
-
     sess = tf.Session()
+
+    with tf.name_scope('create_model'):
+        net = RadNetModel()
+        prediction = net.predict(data, label, id_file)
+
+
     init = tf.global_variables_initializer()
-    sess.run(init)
+    #init = tf.initialize_all_variables()
+    sess.run(init, {net.train_phase(): False})
 
     saver = tf.train.Saver(var_list=tf.trainable_variables())
+    print(tf.trainable_variables())
+    for v in tf.trainable_variables():
+        print(v.name)
 
-    print('Restoring model from {}'.format(args.checkpoint))
-    saver.restore(sess, args.checkpoint)
+    try:
+        ckpt = tf.train.get_checkpoint_state(args.checkpoint)
+        print('Restoring model from {}'.format(args.checkpoint))
+        saver.restore(sess, ckpt.model_checkpoint_path)
+
+    except:
+        print("Something went wrong while restoring checkpoint. "
+              "We will terminate training to avoid accidentally overwriting "
+              "the previous model.")
+        raise
 
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
     reader.start_threads(sess)
@@ -113,7 +128,7 @@ def main():
         for step in range(args.samples):
 
             # Run the RadNet to predict the next sample.
-            id_file, real_output, pred_output, loss = sess.run(prediction, {reader.queue_switch(): 0})
+            id_file, real_output, pred_output, loss = sess.run(prediction, {reader.queue_switch(): 0,  net.train_phase(): False})
 
             write_pred_file(id_file.tolist()[0][0], real_output.tolist()[0], pred_output.tolist()[0], loss)
             #print(type(real_output))

@@ -206,8 +206,8 @@ def main():
     optim = optimizer.minimize(loss, var_list=trainable)
 
     # Set up logging for TensorBoard.
-    # writer_train = tf.summary.FileWriter(logdir)
-    # writer_test = tf.summary.FileWriter(get_default_logdir(LOGDIR_ROOT, 'test'))
+    #writer_train = tf.summary.FileWriter(logdir)
+    #writer_test = tf.summary.FileWriter(get_default_logdir(LOGDIR_ROOT, 'test'))
     writer_train = tf.train.SummaryWriter(logdir)
     writer_test = tf.train.SummaryWriter(get_default_logdir(LOGDIR_ROOT, 'test'))
 
@@ -220,12 +220,13 @@ def main():
 
     # Set up session
     sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
-    # init = tf.global_variables_initializer()
+    #init = tf.global_variables_initializer()
     init = tf.initialize_all_variables()
     sess.run(init, {net.train_phase(): False})
 
     # Saver for storing checkpoints of the model.
     saver = tf.train.Saver(var_list=tf.trainable_variables())
+
 
     try:
         saved_global_step = load(saver, sess, restore_from)

@@ -1,8 +1,8 @@
 import tensorflow as tf
 
 
-def conv2d(x, W, b, strides=1):
-    x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='SAME')
+def conv2d(x, W, b, strides=1, padding='SAME'):
+    x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding=padding)
     x = tf.nn.bias_add(x, b)
     return x
 
@@ -104,10 +104,11 @@ def batchNorm(x, axes, vars, phase_train):
         normed = tf.nn.batch_normalization(x, mean, var, vars['beta'], vars['gamma'], 1e-3)
     return normed
 
-c1_size = 32
-c2_size = 64
-c3_size = 128
-c4_size = 256
+c0_size = 32
+c1_size = 64
+c2_size = 128
+c3_size = 256
+c4_size = 512
 fc1_size = 1024
 fc2_size = 256
 out_size = 26
@@ -135,9 +136,15 @@ class RadNetModel(object):
         var = dict()
 
         with tf.variable_scope('radnet'):
+            with tf.variable_scope('conv0'):
+                current = dict()
+                current['w'] = weightInitilization5(1, 1, 1, c0_size, weight_stddev)
+                current['b'] = biasInitialization(c0_size, bias_stddev)
+                current['bn'] = bnInitialization(c0_size)
+                var['conv0'] = current
             with tf.variable_scope('conv1'):
                 current = dict()
-                current['w'] = weightInitilization5(2, 2, 1, c1_size, weight_stddev)
+                current['w'] = weightInitilization5(2, 2, c0_size, c1_size, weight_stddev)
                 current['b'] = biasInitialization(c1_size, bias_stddev)
                 current['bn'] = bnInitialization(c1_size)
                 var['conv1'] = current
@@ -187,26 +194,34 @@ class RadNetModel(object):
         # x is 64 x 1 tensor with padding at the end
         input_batch = tf.reshape(input_batch, shape=[-1, 8, 8, 1])
 
+        with tf.name_scope('conv0'):
+            print(input_batch.get_shape())
+            conv0 = conv2d(input_batch, self.vars['conv0']['w'], self.vars['conv0']['b'], strides=1, padding="VALID")
+            conv0 = batchNorm(conv0, [0,1,2], self.vars['conv0']['bn'], self.phase_train)
+            conv0 = ReLU(conv0)
+            #conv0 = pool2d(conv0, k=1)
         with tf.name_scope('conv1'):
-            conv1 = conv2d(input_batch, self.vars['conv1']['w'], self.vars['conv1']['b'], strides=1)
+            conv1 = conv2d(conv0, self.vars['conv1']['w'], self.vars['conv1']['b'], strides=1)
             conv1 = batchNorm(conv1, [0,1,2], self.vars['conv1']['bn'], self.phase_train)
-            conv1 = ReLU(conv1)
             conv1 = pool2d(conv1, k=1)
+            conv1 = ReLU(conv1)
+
+            print(conv0.get_shape())
         with tf.name_scope('conv2'):
             conv2 = conv2d(conv1, self.vars['conv2']['w'], self.vars['conv2']['b'], strides=1)
             conv2 = batchNorm(conv2, [0, 1, 2], self.vars['conv2']['bn'], self.phase_train)
-            conv2 = ReLU(conv2)
             conv2 = pool2d(conv2, k=2)
+            conv2 = ReLU(conv2)
         with tf.name_scope('conv3'):
             conv3 = conv2d(conv2, self.vars['conv3']['w'], self.vars['conv3']['b'], strides=1)
             conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv3']['bn'], self.phase_train)
-            conv3 = ReLU(conv3)
             conv3 = pool2d(conv3, k=1)
+            conv3 = ReLU(conv3)
         with tf.name_scope('conv4'):
             conv4 = conv2d(conv3, self.vars['conv4']['w'], self.vars['conv4']['b'], strides=1)
             conv4 = batchNorm(conv4, [0, 1, 2], self.vars['conv4']['bn'], self.phase_train)
-            conv4 = ReLU(conv4)
             conv4 = pool2d(conv4, k=2)
+            conv4 = ReLU(conv4)
         with tf.name_scope('fc1'):
             # Reshape conv3 output to fit fully connected layer input
             fc1 = tf.reshape(conv4, [-1, self.vars['fc1']['w'].get_shape().as_list()[0]])
