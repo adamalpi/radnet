@@ -25,7 +25,9 @@ def weightInitilization5(a, b, c, d, wstddev):
 
 
 def weightInitilization3(a, b, wstddev):
-    return tf.Variable(tf.random_normal([a, b], stddev=wstddev))
+    return tf.get_variable("weight", shape=[a, b],
+                        initializer=tf.contrib.layers.xavier_initializer())
+    #return tf.Variable(tf.random_normal([a, b], stddev=wstddev))
 
 # in the lecture 5 slide 38 set b to small value i.e. 0.1
 def biasInitialization(a, bstddev):
