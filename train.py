@@ -246,7 +246,7 @@ def main():
         raise
 
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-    reader.start_threads(sess, n_threads=32) # will use 3 for train and 1 for validation queues
+    reader.start_threads(sess, n_threads=16) # will use 3 for train and 1 for validation queues
 
     time.sleep(60)
 
