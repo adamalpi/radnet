@@ -177,7 +177,7 @@ class FileReader(object):
                     break
 
                 if id_file[0] <= self.test_range and id == 0:  # below the rage -> train
-                    print("size of queue: "+str(self.queue_train.size()))
+                    #print("size of queue: "+str(self.queue_train.size()))
                     sess.run(self.enqueue_train,
                              feed_dict={self.sample_placeholder_train: data,
                                         self.result_placeholder_train: label,
