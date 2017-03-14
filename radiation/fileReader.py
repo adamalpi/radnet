@@ -89,10 +89,10 @@ def find_files(directory, pattern='*.csv'):
     return files
 
 
-def load_data_samples(directory):
+def load_data_samples(files):
     ''' Generator that yields audio waveforms from the directory.'''
-    files = find_files(directory)
-    print("files length: {}".format(len(files)))
+    #files = find_files(directory)
+    #print("files length: {}".format(len(files)))
     randomized_files = randomize_files(files)
     id_reg_expression = re.compile(FILE_PATTERN)
     for filename in randomized_files:
@@ -151,10 +151,12 @@ class FileReader(object):
         self.select_q = tf.placeholder(tf.int32, [])
         self.queue = tf.QueueBase.from_list(self.select_q, [self.queue_train, self.queue_test])
 
-        files = find_files(data_dir)
-        if not files:
+        self.files = find_files(data_dir)
+        if not self.files:
             raise ValueError("No data files found in '{}'.".format(data_dir))
-        min_id, max_id = get_category_cardinality(files)
+
+        print("files length: {}".format(len(self.files)))
+        min_id, max_id = get_category_cardinality(self.files)
         self.test_range = max_id-(max_id-min_id)*test_percentage
 
     def dequeue(self, num_elements):
@@ -169,7 +171,7 @@ class FileReader(object):
         stop = False
         # Go through the dataset multiple times
         while not stop:
-            iterator = load_data_samples(self.data_dir)
+            iterator = load_data_samples(self.files)
 
             for data, label, id_file in iterator:
                 if self.coord.should_stop():
