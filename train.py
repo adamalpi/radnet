@@ -221,7 +221,9 @@ def main():
     # test_summary = tf.scalar_summary("test_loss", loss)
 
     # Set up session
-    sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
+    #sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
+    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=True))
+
     init = tf.global_variables_initializer()
     #init = tf.initialize_all_variables()
     sess.run(init, {net.train_phase(): False})
