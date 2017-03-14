@@ -180,9 +180,8 @@ class FileReader(object):
         else:
             files = self.train_dataset
 
-        randomized_files = randomize_files(files)
-
         while not stop:
+            randomized_files = randomize_files(files)
             iterator = load_data_samples(randomized_files)
 
             for data, label, id_file in iterator:
