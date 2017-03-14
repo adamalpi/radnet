@@ -15,6 +15,8 @@ import time
 
 import tensorflow as tf
 from tensorflow.python.client import timeline
+from tensorflow.python.saved_model import builder as smb
+from tensorflow.python.framework import graph_util
 
 from radiation import RadNetModel, FileReader, optimizer_factory
 
@@ -206,27 +208,27 @@ def main():
     optim = optimizer.minimize(loss, var_list=trainable)
 
     # Set up logging for TensorBoard.
-    #writer_train = tf.summary.FileWriter(logdir)
-    #writer_test = tf.summary.FileWriter(get_default_logdir(LOGDIR_ROOT, 'test'))
-    writer_train = tf.train.SummaryWriter(logdir)
-    writer_test = tf.train.SummaryWriter(get_default_logdir(LOGDIR_ROOT, 'test'))
+    writer_train = tf.summary.FileWriter(logdir)
+    writer_test = tf.summary.FileWriter(get_default_logdir(LOGDIR_ROOT, 'test'))
+    #writer_train = tf.train.SummaryWriter(logdir)
+    #writer_test = tf.train.SummaryWriter(get_default_logdir(LOGDIR_ROOT, 'test'))
 
     writer_train.add_graph(tf.get_default_graph())
     writer_test.add_graph(tf.get_default_graph())
     run_metadata = tf.RunMetadata()
-    summaries = tf.merge_all_summaries()
+    summaries = tf.summary.merge_all()
     # train_summary = tf.scalar_summary("train_loss", loss)
     # test_summary = tf.scalar_summary("test_loss", loss)
 
     # Set up session
     sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
-    #init = tf.global_variables_initializer()
-    init = tf.initialize_all_variables()
+    init = tf.global_variables_initializer()
+    #init = tf.initialize_all_variables()
     sess.run(init, {net.train_phase(): False})
 
     # Saver for storing checkpoints of the model.
-    saver = tf.train.Saver(var_list=tf.trainable_variables())
-
+    #saver = tf.train.Saver(var_list=tf.trainable_variables())
+    saver = tf.train.Saver()
 
     try:
         saved_global_step = load(saver, sess, restore_from)
@@ -296,6 +298,37 @@ def main():
     finally:
         if step > last_saved_step:
             save(saver, sess, logdir, step)
+
+
+        name_empty_graph_file = 'graph-empty-{}.pb'.format("radnet")
+        name_full_graph_file = 'graph-full-{}.pb'.format("radnet")
+
+        # Store empty graph file
+        print('Saving const graph def to {}'.format(name_empty_graph_file))
+        #graph_def = sess.graph_def
+        #graph_def = sess.graph.as_graph_def()
+        graph_def = tf.get_default_graph().as_graph_def()
+
+        # fix batch norm nodes
+        # https://github.com/tensorflow/tensorflow/issues/3628
+        for node in graph_def.node:
+            if node.op == 'RefSwitch':
+                node.op = 'Switch'
+                for index in range(len(node.input)):
+                    if 'moving_' in node.input[index]:
+                        node.input[index] = node.input[index] + '/read'
+            elif node.op == 'AssignSub':
+                node.op = 'Sub'
+                if 'use_locking' in node.attr: del node.attr['use_locking']
+            elif node.op == 'AssignAdd':
+                node.op = 'Add'
+                if 'use_locking' in node.attr: del node.attr['use_locking']
+
+        converted_graph_def = graph_util.convert_variables_to_constants(sess, graph_def, ["create_model/radnet_1/out/output_node"])
+
+        tf.train.write_graph(converted_graph_def, logdir, name_empty_graph_file, as_text=False)
+
+
         coord.request_stop()
         coord.join(threads)
 

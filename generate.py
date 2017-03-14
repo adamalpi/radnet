@@ -146,7 +146,8 @@ def main():
 
 
         # Introduce a newline to clear the carriage return from the progress.
-        print()
+        print('test')
+
 
         # Save the result as a wav file.
         # if args.wav_out_path:

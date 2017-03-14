@@ -25,6 +25,8 @@ def weightInitilization5(a, b, c, d, wstddev):
 
 
 def weightInitilization3(a, b, wstddev):
+    #xavier initialization improves the starting of the training
+    # http://stackoverflow.com/questions/33640581/how-to-do-xavier-initialization-on-tensorflow
     return tf.get_variable("weight", shape=[a, b],
                         initializer=tf.contrib.layers.xavier_initializer())
     #return tf.Variable(tf.random_normal([a, b], stddev=wstddev))
@@ -127,7 +129,7 @@ class RadNetModel(object):
     def __init__(self):
         ''' Initializes the RadNet Model. '''
         self.vars = self._create_variables()
-        self.phase_train = tf.placeholder(tf.bool)
+        self.phase_train = tf.placeholder(tf.bool, name="train_bool_node")
 
 
     def train_phase(self):
@@ -192,12 +194,16 @@ class RadNetModel(object):
     def _create_network(self, input_batch):
         ''' Construct the network.'''
 
+
         # Pre-process the input
         # x is 64 x 1 tensor with padding at the end
-        input_batch = tf.reshape(input_batch, shape=[-1, 8, 8, 1])
+        input_batch = tf.reshape(input_batch, shape=[-1, 64], name="input_node")
+        input_batch = tf.reshape(input_batch, shape=[-1, 8, 8, 1], name="input_node_reshaped")
+
+
 
         with tf.name_scope('conv0'):
-            print(input_batch.get_shape())
+            #1x1 conv layer https://www.quora.com/What-is-a-1X1-convolution
             conv0 = conv2d(input_batch, self.vars['conv0']['w'], self.vars['conv0']['b'], strides=1, padding="VALID")
             conv0 = batchNorm(conv0, [0,1,2], self.vars['conv0']['bn'], self.phase_train)
             conv0 = ReLU(conv0)
@@ -207,8 +213,6 @@ class RadNetModel(object):
             conv1 = batchNorm(conv1, [0,1,2], self.vars['conv1']['bn'], self.phase_train)
             conv1 = pool2d(conv1, k=1)
             conv1 = ReLU(conv1)
-
-            print(conv0.get_shape())
         with tf.name_scope('conv2'):
             conv2 = conv2d(conv1, self.vars['conv2']['w'], self.vars['conv2']['b'], strides=1)
             conv2 = batchNorm(conv2, [0, 1, 2], self.vars['conv2']['bn'], self.phase_train)
@@ -238,7 +242,7 @@ class RadNetModel(object):
             fc2 = batchNorm(fc2, [0], self.vars['fc2']['bn'], self.phase_train)
             fc2 = ReLU(fc2)
         with tf.name_scope('out'):
-            out = tf.add(tf.matmul(fc2, self.vars['out']['w']), self.vars['out']['b'])
+            out = tf.add(tf.matmul(fc2, self.vars['out']['w']), self.vars['out']['b'], name="output_node")
         return out
 
     def loss(self, input_batch, real_output):
@@ -249,7 +253,8 @@ class RadNetModel(object):
             output = self._create_network(input_batch)
             with tf.name_scope('loss'):
                 loss = tf.reduce_mean(tf.squared_difference(output, real_output))
-                tf.scalar_summary('loss', loss)
+                #tf.scalar_summary('loss', loss)
+                tf.summary.scalar('loss', loss)
 
                 return loss
 
@@ -259,3 +264,4 @@ class RadNetModel(object):
             pred_output = self._create_network(input)
             loss = tf.reduce_mean(tf.squared_difference(pred_output, real_output))
             return id_file, real_output, pred_output, loss
+
