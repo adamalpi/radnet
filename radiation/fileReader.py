@@ -124,7 +124,7 @@ class FileReader(object):
                  coord,
                  n_input=64,
                  n_output=26,
-                 queue_size=1000,
+                 queue_size=10000,
                  test_percentage=0.2):
 
         self.data_dir = data_dir
@@ -177,6 +177,7 @@ class FileReader(object):
                     break
 
                 if id_file[0] <= self.test_range and id == 0:  # below the rage -> train
+                    print("size of queue: "+str(self.queue_train.size()))
                     sess.run(self.enqueue_train,
                              feed_dict={self.sample_placeholder_train: data,
                                         self.result_placeholder_train: label,
