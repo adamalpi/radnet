@@ -93,9 +93,9 @@ def load_data_samples(files):
     ''' Generator that yields audio waveforms from the directory.'''
     #files = find_files(directory)
     #print("files length: {}".format(len(files)))
-    randomized_files = randomize_files(files)
+
     id_reg_expression = re.compile(FILE_PATTERN)
-    for filename in randomized_files:
+    for filename in files:
         f = open(filename)
         lines = f.readlines()
         data = []
@@ -124,7 +124,7 @@ class FileReader(object):
                  coord,
                  n_input=64,
                  n_output=26,
-                 queue_size=10000,
+                 queue_size=1000000,
                  test_percentage=0.2):
 
         self.data_dir = data_dir
@@ -156,6 +156,11 @@ class FileReader(object):
             raise ValueError("No data files found in '{}'.".format(data_dir))
 
         print("files length: {}".format(len(self.files)))
+
+        range = int(len(self.files) * (1-test_percentage))
+        self.test_dataset = self.files[:range]
+        self.train_dataset = self.files[range:]
+
         min_id, max_id = get_category_cardinality(self.files)
         self.test_range = max_id-(max_id-min_id)*test_percentage
 
@@ -167,25 +172,30 @@ class FileReader(object):
     def queue_switch(self):
         return self.select_q
 
-    def thread_main(self, sess, id):
+    def thread_main(self, sess, id, test):
         stop = False
         # Go through the dataset multiple times
+        if test:
+            files = self.test_dataset
+        else:
+            files = self.train_dataset
+
+        randomized_files = randomize_files(files)
+
         while not stop:
-            iterator = load_data_samples(self.files)
+            iterator = load_data_samples(randomized_files)
 
             for data, label, id_file in iterator:
                 if self.coord.should_stop():
                     stop = True
                     break
 
-                if id_file[0] > self.test_range and id == 0:  # in train range and test thread
+                if test:  # in train range and test thread
                     sess.run(self.enqueue_test,
                              feed_dict={self.sample_placeholder_test: data,
                                         self.result_placeholder_test: label,
                                         self.idFile_placeholder_test: id_file})
-
-                if id_file[0] <= self.test_range and id > 0:  # below the rage -> train
-                    #print("size of queue: "+str(self.queue_train.size()))
+                else:  # below the rage -> train
                     sess.run(self.enqueue_train,
                              feed_dict={self.sample_placeholder_train: data,
                                         self.result_placeholder_train: label,
@@ -193,7 +203,10 @@ class FileReader(object):
 
     def start_threads(self, sess, n_threads=2):
         for id in range(n_threads):
-            thread = threading.Thread(target=self.thread_main, args=(sess,id))
+            if id == 0:
+                thread = threading.Thread(target=self.thread_main, args=(sess, id, True))
+            else:
+                thread = threading.Thread(target=self.thread_main, args=(sess, id, False))
             thread.daemon = True  # Thread will close when parent quits.
             thread.start()
             self.threads.append(thread)
