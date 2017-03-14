@@ -222,7 +222,7 @@ def main():
 
     # Set up session
     #sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
-    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=True))
+    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=False))
 
     init = tf.global_variables_initializer()
     #init = tf.initialize_all_variables()
@@ -246,7 +246,9 @@ def main():
         raise
 
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-    reader.start_threads(sess)
+    reader.start_threads(sess, n_threads=4) # will use 3 for train and 1 for validation queues
+
+    time.sleep(10)
 
     step = None
     try:

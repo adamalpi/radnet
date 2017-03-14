@@ -176,17 +176,18 @@ class FileReader(object):
                     stop = True
                     break
 
-                if id_file[0] <= self.test_range and id == 0:  # below the rage -> train
+                if id_file[0] > self.test_range and id == 0:  # in train range and test thread
+                    sess.run(self.enqueue_test,
+                             feed_dict={self.sample_placeholder_test: data,
+                                        self.result_placeholder_test: label,
+                                        self.idFile_placeholder_test: id_file})
+
+                if id_file[0] <= self.test_range and id > 0:  # below the rage -> train
                     #print("size of queue: "+str(self.queue_train.size()))
                     sess.run(self.enqueue_train,
                              feed_dict={self.sample_placeholder_train: data,
                                         self.result_placeholder_train: label,
                                         self.idFile_placeholder_train: id_file})
-                if id_file[0] > self.test_range and id == 1:  # in train range and test thread
-                    sess.run(self.enqueue_test,
-                             feed_dict={self.sample_placeholder_test: data,
-                                        self.result_placeholder_test: label,
-                                        self.idFile_placeholder_test: id_file})
 
     def start_threads(self, sess, n_threads=2):
         for id in range(n_threads):
