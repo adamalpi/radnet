@@ -300,8 +300,13 @@ def main():
         # is on its own line.
         print()
     finally:
+        input_node = sess.graph.get_tensor_by_name("create_model/radnet_1/input_node:0")
+        tf.identity(input_node, name="input_node")
+
+
         if step > last_saved_step:
             save(saver, sess, logdir, step)
+
 
 
         name_empty_graph_file = 'graph-empty-{}.pb'.format("radnet")
