@@ -308,9 +308,9 @@ def main():
             save(saver, sess, logdir, step)
 
 
-
-        name_empty_graph_file = 'graph-empty-{}.pb'.format("radnet")
-        name_full_graph_file = 'graph-full-{}.pb'.format("radnet")
+        # Code for creating the protobuf file that contains the backup
+        # This code should be refactored into a single function.
+        name_empty_graph_file = 'graph-frozen-{}.pb'.format("radnet")
 
         # Store empty graph file
         print('Saving const graph def to {}'.format(name_empty_graph_file))
