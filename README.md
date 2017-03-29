@@ -41,3 +41,7 @@ python train.py --help
 python generate.py --help
 ```
 
+## Inferencing 
+The file train.py generates when finished, or interrupted with ctrl+c generates a file called "graph_frozen_radnet.pb" (in logdir/train/<date>/graph_frozen_radnet.pb) that contains the final state of the model that can be loaded for inferencing the model. 
+
+The file test.py contains an example on how to use the inferencing library that builds up the Tensorflow graph into memory and can be fetched in further calls.
