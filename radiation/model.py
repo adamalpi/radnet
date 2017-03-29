@@ -204,7 +204,7 @@ class RadNetModel(object):
 
         with tf.name_scope('conv0'):
             #1x1 conv layer https://www.quora.com/What-is-a-1X1-convolution
-            conv0 = conv2d(input_batch, self.vars['conv0']['w'], self.vars['conv0']['b'], strides=1, padding="VALID")
+            conv0 = conv2d(input_batch, self.vars['conv0']['w'], self.vars['conv0']['b'], strides=1)
             conv0 = batchNorm(conv0, [0,1,2], self.vars['conv0']['bn'], self.phase_train)
             conv0 = ReLU(conv0)
             #conv0 = pool2d(conv0, k=1)
@@ -212,6 +212,7 @@ class RadNetModel(object):
         with tf.name_scope('conv1'):
             conv1 = conv2d(conv0, self.vars['conv1']['w'], self.vars['conv1']['b'], strides=1)
             conv1 = batchNorm(conv1, [0,1,2], self.vars['conv1']['bn'], self.phase_train)
+            print(conv1.get_shape())
             conv1 = pool2d(conv1, k=2)
             conv1 = ReLU(conv1)
             print(conv1.get_shape())
