@@ -3,6 +3,7 @@ import os
 import random
 import re
 import threading
+import json
 
 import numpy as np
 import tensorflow as tf
@@ -90,29 +91,31 @@ def find_files(directory, pattern='*.csv'):
 
 
 def load_data_samples(files):
-    ''' Generator that yields audio waveforms from the directory.'''
-    #files = find_files(directory)
+    ''' Generator that yields samples from the directory.'''
+    #files = find_files(directory, '*')
     #print("files length: {}".format(len(files)))
-
-    id_reg_expression = re.compile(FILE_PATTERN)
+    # id_reg_expression = re.compile(FILE_PATTERN)
     for filename in files:
-        f = open(filename)
-        lines = f.readlines()
-        data = []
-        label = []
-        for j in range(1, len(lines)):
-            items = lines[j].strip().split(",")
-            data.append(normalizeT(float(items[2])))
-            data.append(normalizeQ(float(items[3])))
-            label.append(normalizeR(float(items[4])))
-        f.close()
+        with open(filename) as f:
+            id = 0
+            for line in f:
+                id += 1
+                input = json.loads(line)
+                # todo normalize the input
+                data = []
+                data.append(input['co2'])
+                data.append(input['surface_temperature'])
+                for i in range (0, len(input['radiation'])):
+                    data.append(input['humidity'][i])
+                    data.append(input['air_temperature'][i])
 
-        for _ in range(0, 12):
-            data.append(0.0)
+                #fill last 2 values with 0
+                data.append(0.0)
+                data.append(0.0)
 
-        id = int(id_reg_expression.findall(filename)[0])
+                yield data, input['radiation'], [id]
 
-        yield data, label, [id]
+
 
 
 class FileReader(object):
@@ -122,8 +125,8 @@ class FileReader(object):
     def __init__(self,
                  data_dir,
                  coord,
-                 n_input=64,
-                 n_output=26,
+                 n_input=196,
+                 n_output=96,
                  queue_size=1000000,
                  test_percentage=0.2):
 
@@ -151,7 +154,7 @@ class FileReader(object):
         self.select_q = tf.placeholder(tf.int32, [])
         self.queue = tf.QueueBase.from_list(self.select_q, [self.queue_train, self.queue_test])
 
-        self.files = find_files(data_dir)
+        self.files = find_files(data_dir,'*')
         if not self.files:
             raise ValueError("No data files found in '{}'.".format(data_dir))
 
@@ -161,8 +164,8 @@ class FileReader(object):
         self.test_dataset = self.files[:range]
         self.train_dataset = self.files[range:]
 
-        min_id, max_id = get_category_cardinality(self.files)
-        self.test_range = max_id-(max_id-min_id)*test_percentage
+        #min_id, max_id = get_category_cardinality(self.files)
+        #self.test_range = max_id-(max_id-min_id)*test_percentage
 
     def dequeue(self, num_elements):
         data, label, id = self.queue.dequeue_many(num_elements)
@@ -181,8 +184,8 @@ class FileReader(object):
             files = self.train_dataset
 
         while not stop:
-            randomized_files = randomize_files(files)
-            iterator = load_data_samples(randomized_files)
+            # randomized_files = randomize_files(files)
+            iterator = load_data_samples(files)
 
             for data, label, id_file in iterator:
                 if self.coord.should_stop():
