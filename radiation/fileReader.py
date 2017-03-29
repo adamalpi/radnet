@@ -183,7 +183,11 @@ class FileReader(object):
         else:
             files = self.train_dataset
 
+        epoch = 0
         while not stop:
+            epoch += 1
+            if not test:
+                print ("Number of epochs: {}".format(epoch))
             # randomized_files = randomize_files(files)
             iterator = load_data_samples(files)
 
