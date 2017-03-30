@@ -103,15 +103,17 @@ def load_data_samples(files):
                 input = json.loads(line)
                 # todo normalize the input
                 data = []
-                data.append(input['co2'])
-                data.append(input['surface_temperature'])
+
                 for i in range (0, len(input['radiation'])):
                     data.append(input['humidity'][i])
                     data.append(input['air_temperature'][i])
+                    data.append(input['co2'])
+                    data.append(input['surface_temperature'])
 
                 #fill last 2 values with 0
-                data.append(0.0)
-                data.append(0.0)
+                for _ in range(0, 16):
+                    data.append(0.0)
+
 
                 yield data, input['radiation'], [id]
 
@@ -125,7 +127,7 @@ class FileReader(object):
     def __init__(self,
                  data_dir,
                  coord,
-                 n_input=196,
+                 n_input=400,
                  n_output=96,
                  queue_size=1000000,
                  test_percentage=0.2):
