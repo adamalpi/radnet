@@ -11,22 +11,9 @@ import tensorflow as tf
 
 FILE_PATTERN = r'([0-9]+)\.csv'
 
-# minT = -80.0
-# maxT = 29.988
-# meanT = -3.89422067546
-# stdT = 33.3924274674
-#
-# minQ = 0.0
-# maxQ = 27.285
-# meanQ = 13.1465901805
-# stdQ = 9.33156561388
-#
-# minR = -9.94
-# maxR = 7.455
-# meanR = -2.07510301805
-# stdR = 1.21609343765
 
 
+"""
 minT = -80.0000000000
 maxT = 29.9879614723
 meanT = -3.8945928534
@@ -41,14 +28,31 @@ minR = -10.7046261119
 maxR = 12.6840617592
 meanR = -2.0750710241
 stdR = 1.2158839662
+"""
+
+minT = 100.0000000000
+maxT = 352.8637738459
+meanT = 230.0625751705
+stdT = 46.4859091341
+
+minH = 0.0000000000
+maxH = 0.9399494311
+meanH = 0.0041856005
+stdH = 0.0134572390
+
+minR = -0.0007070472
+maxR = 0.0002247546
+meanR = -0.0000073446
+stdR = 0.0000234547
+
 
 
 def normalizeT(t):
     return normalize(t, minT, maxT, meanT, stdT)
 
 
-def normalizeQ(q):
-    return normalize(q, minQ, maxQ, meanQ, stdQ)
+def normalizeH(h):
+    return normalize(h, minH, maxH, meanH, stdH)
 
 
 def normalizeR(r):
@@ -105,7 +109,7 @@ def load_data_samples(files):
                 data = []
 
                 for i in range (0, len(input['radiation'])):
-                    data.append(input['humidity'][i])
+                    data.append(normalizeH(input['humidity'][i]))
                     data.append(input['air_temperature'][i])
                     data.append(input['co2'])
                     data.append(input['surface_temperature'])
