@@ -217,7 +217,7 @@ class FileReader(object):
                                         self.idFile_placeholder_train: id_file})
 
     def start_threads(self, sess, n_threads=2):
-        epoch = 0
+
         for id in range(n_threads):
             if id == 0:
                 thread = threading.Thread(target=self.thread_main, args=(sess, id, True))
