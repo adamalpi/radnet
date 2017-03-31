@@ -45,6 +45,8 @@ maxR = 0.0002333508
 meanR = -0.0000073718
 stdR = 0.0000235262
 
+epoch = 0
+
 
 def normalizeT(t):
     return normalize(t, minT, maxT, meanT, stdT)
