@@ -120,6 +120,8 @@ def load_data_samples(files):
                 #fill last 2 values with 0
                 #for _ in range(0, 16):
                 #    data.append(0.0)
+                data.append(0.0)
+                data.append(0.0)
 
 
                 yield data, label, [id]
@@ -134,7 +136,7 @@ class FileReader(object):
     def __init__(self,
                  data_dir,
                  coord,
-                 n_input=400,
+                 n_input=196,
                  n_output=96,
                  queue_size=10000000,
                  test_percentage=0.2):
