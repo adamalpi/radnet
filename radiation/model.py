@@ -2,13 +2,13 @@ import tensorflow as tf
 
 
 def conv2d(x, W, b, strides=1, padding='SAME'):
-    x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding=padding)
+    x = tf.nn.conv2d(x, W, strides=[1, 1, strides, 1], padding=padding)
     x = tf.nn.bias_add(x, b)
     return x
 
 
-def pool2d(x, k=2):
-    return tf.nn.max_pool(x, ksize=[1, k, k, 1], strides=[1, k, k, 1], padding='SAME')
+def pool2d(x, k=2, l=2):
+    return tf.nn.max_pool(x, ksize=[1, k, l, 1], strides=[1, k, l, 1], padding='SAME')
 
 
 def ReLU(x):
@@ -149,7 +149,7 @@ class RadNetModel(object):
                 var['conv0'] = current
             with tf.variable_scope('conv1'):
                 current = dict()
-                current['w'] = weightInitilization5(2, 2, c0_size, c1_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 2, c0_size, c1_size, weight_stddev)
                 current['b'] = biasInitialization(c1_size, bias_stddev)
                 current['bn'] = bnInitialization(c1_size)
                 var['conv1'] = current
@@ -199,8 +199,8 @@ class RadNetModel(object):
         print(input_batch.get_shape())
         # Pre-process the input
         # x is 64 x 1 tensor with padding at the end
-        input_batch = tf.reshape(input_batch, shape=[-1, 196], name="input_node")
-        input_batch = tf.reshape(input_batch, shape=[-1, 14, 14, 1], name="input_node_reshaped")
+        input_batch = tf.reshape(input_batch, shape=[-1, 384], name="input_node")
+        input_batch = tf.reshape(input_batch, shape=[-1, 4, 96, 1], name="input_node_reshaped")
 
 
 
@@ -215,27 +215,27 @@ class RadNetModel(object):
             conv1 = conv2d(conv0, self.vars['conv1']['w'], self.vars['conv1']['b'], strides=1)
             conv1 = batchNorm(conv1, [0,1,2], self.vars['conv1']['bn'], self.phase_train)
             print(conv1.get_shape())
-            conv1 = pool2d(conv1, k=2)
+            conv1 = pool2d(conv1, k=1, l=2)
             conv1 = ReLU(conv1)
             print(conv1.get_shape())
         with tf.name_scope('conv2'):
-            conv2 = conv2d(conv1, self.vars['conv2']['w'], self.vars['conv2']['b'], strides=1)
+            conv2 = conv2d(conv1, self.vars['conv2']['w'], self.vars['conv2']['b'], strides=3)
             conv2 = batchNorm(conv2, [0, 1, 2], self.vars['conv2']['bn'], self.phase_train)
             print(conv2.get_shape())
-            conv2 = pool2d(conv2, k=2)
+            conv2 = pool2d(conv2, k=1, l=2)
             conv2 = ReLU(conv2)
             print(conv2.get_shape())
         with tf.name_scope('conv3'):
             conv3 = conv2d(conv2, self.vars['conv3']['w'], self.vars['conv3']['b'], strides=1)
             conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv3']['bn'], self.phase_train)
-            conv3 = pool2d(conv3, k=1)
+            conv3 = pool2d(conv3, k=1, l=2)
             conv3 = ReLU(conv3)
             print(conv3.get_shape())
         with tf.name_scope('conv4'):
             conv4 = conv2d(conv3, self.vars['conv4']['w'], self.vars['conv4']['b'], strides=1)
             conv4 = batchNorm(conv4, [0, 1, 2], self.vars['conv4']['bn'], self.phase_train)
             print(conv4.get_shape())
-            conv4 = pool2d(conv4, k=2)
+            conv4 = pool2d(conv4, k=2, l=2)
             conv4 = ReLU(conv4)
             print(conv4.get_shape())
 
@@ -249,7 +249,6 @@ class RadNetModel(object):
 
             #print(fc1.get_shape())
         with tf.name_scope('fc2'):
-            # Reshape conv3 output to fit fully connected layer input
             fc2 = tf.add(tf.matmul(fc1, self.vars['fc2']['w']), self.vars['fc2']['b'])
             fc2 = batchNorm(fc2, [0], self.vars['fc2']['bn'], self.phase_train)
             fc2 = ReLU(fc2)
