@@ -141,61 +141,61 @@ class RadNetModel(object):
         with tf.variable_scope('radnet'):
             with tf.variable_scope('conv0'):
                 current = dict()
-                current['w'] = weightInitilization5(1, 1, 1, c1_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 1, 4, c1_size, weight_stddev)
                 current['b'] = biasInitialization(c1_size, bias_stddev)
                 current['bn'] = bnInitialization(c1_size)
                 var['conv0'] = current
             with tf.variable_scope('conv1'):
                 current = dict()
-                current['w'] = weightInitilization5(3, 1, c1_size, c1_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 3, c1_size, c1_size, weight_stddev)
                 current['b'] = biasInitialization(c1_size, bias_stddev)
                 current['bn'] = bnInitialization(c1_size)
                 var['conv1'] = current
             with tf.variable_scope('conv2'):
                 current = dict()
-                current['w'] = weightInitilization5(3, 1, c1_size, c1_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 3, c1_size, c1_size, weight_stddev)
                 current['b'] = biasInitialization(c1_size, bias_stddev)
                 current['bn'] = bnInitialization(c1_size)
                 var['conv2'] = current
             with tf.variable_scope('conv3'):
                 current = dict()
-                current['w'] = weightInitilization5(3, 1, c1_size, c2_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 3, c1_size, c2_size, weight_stddev)
                 current['b'] = biasInitialization(c2_size, bias_stddev)
                 current['bn'] = bnInitialization(c2_size)
                 var['conv3'] = current
             with tf.variable_scope('conv4'):
                 current = dict()
-                current['w'] = weightInitilization5(3, 1, c2_size, c2_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 3, c2_size, c2_size, weight_stddev)
                 current['b'] = biasInitialization(c2_size, bias_stddev)
                 current['bn'] = bnInitialization(c2_size)
                 var['conv4'] = current
             with tf.variable_scope('conv5'):
                 current = dict()
-                current['w'] = weightInitilization5(3, 1, c2_size, c2_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 3, c2_size, c2_size, weight_stddev)
                 current['b'] = biasInitialization(c2_size, bias_stddev)
                 current['bn'] = bnInitialization(c2_size)
                 var['conv5'] = current
             with tf.variable_scope('conv6'):
                 current = dict()
-                current['w'] = weightInitilization5(3, 1, c2_size, c3_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 3, c2_size, c3_size, weight_stddev)
                 current['b'] = biasInitialization(c3_size, bias_stddev)
                 current['bn'] = bnInitialization(c3_size)
                 var['conv6'] = current
             with tf.variable_scope('conv7'):
                 current = dict()
-                current['w'] = weightInitilization5(3, 1, c3_size, c3_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 3, c3_size, c3_size, weight_stddev)
                 current['b'] = biasInitialization(c3_size, bias_stddev)
                 current['bn'] = bnInitialization(c3_size)
                 var['conv7'] = current
             with tf.variable_scope('conv8'):
                 current = dict()
-                current['w'] = weightInitilization5(3, 1, c3_size, c4_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 3, c3_size, c4_size, weight_stddev)
                 current['b'] = biasInitialization(c4_size, bias_stddev)
                 current['bn'] = bnInitialization(c4_size)
                 var['conv8'] = current
             with tf.variable_scope('conv9'):
                 current = dict()
-                current['w'] = weightInitilization5(3, 1, c4_size, c4_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 3, c4_size, c4_size, weight_stddev)
                 current['b'] = biasInitialization(c4_size, bias_stddev)
                 current['bn'] = bnInitialization(c4_size)
                 var['conv9'] = current
@@ -203,7 +203,7 @@ class RadNetModel(object):
             with tf.variable_scope('fc1'):
                 current = dict()
 
-                current['w'] = weightInitilization3(2 * 2 * c4_size, fc1_size, weight_stddev)
+                current['w'] = weightInitilization3(2 * 1 * c4_size, fc1_size, weight_stddev)
                 current['b'] = biasInitialization(fc1_size, bias_stddev)
                 current['bn'] = bnInitialization(fc1_size)
                 var['fc1'] = current
@@ -229,7 +229,7 @@ class RadNetModel(object):
         # Pre-process the input
         # x is 64 x 1 tensor with padding at the end
         input_batch = tf.reshape(input_batch, shape=[-1, 384], name="input_node")
-        input_batch = tf.reshape(input_batch, shape=[-1, 96, 4, 1], name="input_node_reshaped")
+        input_batch = tf.reshape(input_batch, shape=[-1, 96, 1, 4], name="input_node_reshaped")
 
 
         with tf.name_scope('conv0'):

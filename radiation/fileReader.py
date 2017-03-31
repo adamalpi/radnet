@@ -112,10 +112,16 @@ def load_data_samples(files):
 
                 for i in range (0, len(input['radiation'])):
                     data.append(normalizeH(input['humidity'][i]))
-                    data.append(normalizeT(input['air_temperature'][i]))
-                    data.append(input['co2'])
-                    data.append(input['surface_temperature'])
                     label.append(normalizeR(input['radiation'][i]))
+
+                for i in range (0, len(input['radiation'])):
+                    data.append(normalizeT(input['air_temperature'][i]))
+
+                for i in range (0, len(input['radiation'])):
+                    data.append(input['co2'])
+
+                for i in range (0, len(input['radiation'])):
+                    data.append(input['surface_temperature'])
 
                 #fill last 2 values with 0
                 #for _ in range(0, 16):
