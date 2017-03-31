@@ -107,19 +107,21 @@ def load_data_samples(files):
                 input = json.loads(line)
                 # todo normalize the input
                 data = []
-
+                label = []
+                data.append(input['co2'])
+                data.append(input['surface_temperature'])
                 for i in range (0, len(input['radiation'])):
                     data.append(normalizeH(input['humidity'][i]))
-                    data.append(input['air_temperature'][i])
-                    data.append(input['co2'])
-                    data.append(input['surface_temperature'])
+                    data.append(normalizeT(input['air_temperature'][i]))
+
+                    label.append(normalizeR(input['radiation'][i]))
 
                 #fill last 2 values with 0
-                for _ in range(0, 16):
-                    data.append(0.0)
+                #for _ in range(0, 16):
+                #    data.append(0.0)
 
 
-                yield data, input['radiation'], [id]
+                yield data, label, [id]
 
 
 
