@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import json
 import fnmatch
 
 def find_files(directory, pattern='*.csv'):
@@ -12,21 +13,26 @@ def find_files(directory, pattern='*.csv'):
 
 
 def load_data_samples(directory):
-    ''' Generator that yields audio waveforms from the directory.'''
-    files = find_files(directory)
+    ''' Generator that yields samples from the directory.'''
+    files = find_files(directory, '*')
+    print(files)
     print("files length: {}".format(len(files)))
-
+    # id_reg_expression = re.compile(FILE_PATTERN)
     for filename in files:
+        print(filename)
         with open(filename) as f:
-            lines = f.readlines()
-            data = []
-            label = []
-            for j in range(1, len(lines)):
-                items = lines[j].strip().split(",")
-                T=float(items[2])
-                Q=float(items[3])
-                R=float(items[4])
-                yield T, Q, R
+            id = 0
+            for line in f:
+                id += 1
+                input = json.loads(line)
+                # todo normalize the input
+                data = []
+                data.append(input['co2'])
+                data.append(input['surface_temperature'])
+                for i in range (0, len(input['radiation'])):
+                    data.append(input['humidity'][i])
+                    data.append(input['air_temperature'][i])
+                    yield input['humidity'][i], input['air_temperature'][i], input['radiation'][i]
 
 #http://stackoverflow.com/questions/5543651/computing-standard-deviation-in-a-stream
 class OnlineStats(object):
@@ -60,27 +66,29 @@ class OnlineStats(object):
 
 
 
+dir = '/home/adam/data/data_v3/'
+
+iterator = load_data_samples(dir)
+
 vars = OnlineStats()
 
 oR = OnlineStats(ddof=0)
 oQ = OnlineStats(ddof=0)
 oT = OnlineStats(ddof=0)
-dir = '/Users/adam13/Documents/uni/TFM/Data/radiation_data_v2/'
-
-iterator = load_data_samples(dir)
 
 i = 0
-for t, q, r in iterator:
+for q, t, r in iterator:
     i += 1
     oT.include(t)
     oQ.include(q)
     oR.include(r)
-
-    print(i)
+    if (i%100000 == 0):
+        print(i)
 
 print('T:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oT.min, oT.max, oT.mean, oT.std))
 print('Q:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oQ.min, oQ.max, oQ.mean, oQ.std))
 print('R:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oR.min, oR.max, oR.mean, oR.std))
+
 
 
 

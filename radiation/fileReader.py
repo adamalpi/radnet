@@ -133,7 +133,7 @@ class FileReader(object):
                  coord,
                  n_input=400,
                  n_output=96,
-                 queue_size=1000000,
+                 queue_size=10000000,
                  test_percentage=0.2):
 
         self.data_dir = data_dir
@@ -182,6 +182,7 @@ class FileReader(object):
         return self.select_q
 
     def thread_main(self, sess, id, test):
+        global epoch
         stop = False
         # Go through the dataset multiple times
         if test:
@@ -189,13 +190,13 @@ class FileReader(object):
         else:
             files = self.train_dataset
 
-        epoch = 0
+
         while not stop:
             epoch += 1
             if not test:
                 print ("Number of epochs: {}".format(epoch))
-            # randomized_files = randomize_files(files)
-            iterator = load_data_samples(files)
+            randomized_files = randomize_files(files)
+            iterator = load_data_samples(randomized_files)
 
             for data, label, id_file in iterator:
                 if self.coord.should_stop():
@@ -214,6 +215,7 @@ class FileReader(object):
                                         self.idFile_placeholder_train: id_file})
 
     def start_threads(self, sess, n_threads=2):
+        epoch = 0
         for id in range(n_threads):
             if id == 0:
                 thread = threading.Thread(target=self.thread_main, args=(sess, id, True))
