@@ -28,6 +28,10 @@ minR = -10.7046261119
 maxR = 12.6840617592
 meanR = -2.0750710241
 stdR = 1.2158839662
+
+R:  min -72.2602017533 max 20.1615070290 mean -0.6369230161 std 2.0326646987
+T:  min 100.0000000000 max 333.1499604121 mean 268.1425003086 std 37.5403768822
+C:  min 0.0000000000 max 0.0099999956 mean 0.0017302686 std 0.0023876463
 """
 
 minT = 100.0000000000
@@ -40,10 +44,16 @@ maxH = 1.5476185910
 meanH = 0.0042088778
 stdH = 0.0136187270
 
-minR = -0.0008363449
-maxR = 0.0002333508
-meanR = -0.0000073718
-stdR = 0.0000235262
+minR = -72.2602017533
+maxR = 20.1615070290
+meanR = -0.6369230161
+stdR = 2.0326646987
+
+meanST = 268.1425003086
+stdST = 37.5403768822
+
+meanCO2 = 0.0017302686
+stdCO2 = 0.0023876463
 
 epoch = 0
 
@@ -58,6 +68,12 @@ def normalizeH(h):
 
 def normalizeR(r):
     return normalize(r, minR, maxR, meanR, stdR)
+
+def normalizeST(r):
+    return normalize(r, minR, maxR, meanST, stdST)
+
+def normalizeCO2(r):
+    return normalize(r, minR, maxR, meanCO2, stdCO2)
 
 
 def normalize(x, min, max, mean, std):
@@ -112,16 +128,16 @@ def load_data_samples(files):
 
                 for i in range (0, len(input['radiation'])):
                     data.append(normalizeH(input['humidity'][i]))
-                    label.append(normalizeR(input['radiation'][i]))
+                    label.append(normalizeR(input['radiation'][i]*86400))
 
                 for i in range (0, len(input['radiation'])):
                     data.append(normalizeT(input['air_temperature'][i]))
 
                 for i in range (0, len(input['radiation'])):
-                    data.append(input['co2'])
+                    data.append(normalizeCO2(input['co2']))
 
                 for i in range (0, len(input['radiation'])):
-                    data.append(input['surface_temperature'])
+                    data.append(normalizeST(input['surface_temperature']))
 
                 #fill last 2 values with 0
                 #for _ in range(0, 16):
