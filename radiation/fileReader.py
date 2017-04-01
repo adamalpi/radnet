@@ -128,10 +128,11 @@ def load_data_samples(files):
 
                 for i in range (0, len(input['radiation'])):
                     data.append(normalizeH(input['humidity'][i]))
+                    data.append(normalizeT(input['air_temperature'][i]))
                     label.append(normalizeR(input['radiation'][i]*86400))
 
-                for i in range (0, len(input['radiation'])):
-                    data.append(normalizeT(input['air_temperature'][i]))
+                #for i in range (0, len(input['radiation'])):
+
 
                 #for i in range (0, len(input['radiation'])):
                 #    data.append(normalizeCO2(input['co2']))
@@ -140,8 +141,8 @@ def load_data_samples(files):
                 #    data.append(normalizeST(input['surface_temperature']))
 
                 #fill last 2 values with 0
-                #for _ in range(0, 16):
-                #    data.append(0.0)
+                for _ in range(0, 4):
+                    data.append(0.0)
 
 
 
@@ -157,7 +158,7 @@ class FileReader(object):
     def __init__(self,
                  data_dir,
                  coord,
-                 n_input=192,
+                 n_input=196,
                  n_output=96,
                  queue_size=10000000,
                  test_percentage=0.2):
