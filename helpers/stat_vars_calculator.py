@@ -30,9 +30,9 @@ def load_data_samples(directory):
                 data.append(input['co2'])
                 data.append(input['surface_temperature'])
                 for i in range (0, len(input['radiation'])):
-                    data.append(input['humidity'][i])
-                    data.append(input['air_temperature'][i])
-                    yield input['humidity'][i], input['air_temperature'][i], input['radiation'][i]
+                #    data.append(input['humidity'][i])
+                #    data.append(input['air_temperature'][i])
+                    yield input['radiation'][i]*86400
 
 #http://stackoverflow.com/questions/5543651/computing-standard-deviation-in-a-stream
 class OnlineStats(object):
@@ -77,16 +77,16 @@ oQ = OnlineStats(ddof=0)
 oT = OnlineStats(ddof=0)
 
 i = 0
-for q, t, r in iterator:
+for r in iterator:
     i += 1
-    oT.include(t)
-    oQ.include(q)
+    #oT.include(t)
+    #oQ.include(q)
     oR.include(r)
     if (i%100000 == 0):
         print(i)
 
-print('T:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oT.min, oT.max, oT.mean, oT.std))
-print('Q:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oQ.min, oQ.max, oQ.mean, oQ.std))
+#print('T:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oT.min, oT.max, oT.mean, oT.std))
+#print('Q:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oQ.min, oQ.max, oQ.mean, oQ.std))
 print('R:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oR.min, oR.max, oR.mean, oR.std))
 
 
