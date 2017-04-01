@@ -202,7 +202,7 @@ class RadNetModel(object):
                 current = dict()
                 current['w'] = weightInitilization3(fc2_size, out_size, weight_stddev)
                 current['b'] = biasInitialization(out_size, bias_stddev)
-                var['out'] = current
+                var['out'] = current 
 
         return var
 
