@@ -133,11 +133,11 @@ def load_data_samples(files):
                 for i in range (0, len(input['radiation'])):
                     data.append(normalizeT(input['air_temperature'][i]))
 
-                for i in range (0, len(input['radiation'])):
-                    data.append(normalizeCO2(input['co2']))
+                #for i in range (0, len(input['radiation'])):
+                #    data.append(normalizeCO2(input['co2']))
 
-                for i in range (0, len(input['radiation'])):
-                    data.append(normalizeST(input['surface_temperature']))
+                #for i in range (0, len(input['radiation'])):
+                #    data.append(normalizeST(input['surface_temperature']))
 
                 #fill last 2 values with 0
                 #for _ in range(0, 16):
@@ -157,7 +157,7 @@ class FileReader(object):
     def __init__(self,
                  data_dir,
                  coord,
-                 n_input=384,
+                 n_input=192,
                  n_output=96,
                  queue_size=10000000,
                  test_percentage=0.2):
