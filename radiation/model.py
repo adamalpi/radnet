@@ -141,7 +141,7 @@ class RadNetModel(object):
         with tf.variable_scope('radnet'):
             with tf.variable_scope('conv0'):
                 current = dict()
-                current['w'] = weightInitilization5(1, 1, 4, c1_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 1, 2, c1_size, weight_stddev)
                 current['b'] = biasInitialization(c1_size, bias_stddev)
                 current['bn'] = bnInitialization(c1_size)
                 var['conv0'] = current
