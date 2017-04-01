@@ -141,13 +141,13 @@ class RadNetModel(object):
         with tf.variable_scope('radnet'):
             with tf.variable_scope('conv0'):
                 current = dict()
-                current['w'] = weightInitilization5(1, 1, 2, c1_size, weight_stddev)
+                current['w'] = weightInitilization5(3, 1, 2, c1_size, weight_stddev)
                 current['b'] = biasInitialization(c1_size, bias_stddev)
                 current['bn'] = bnInitialization(c1_size)
                 var['conv0'] = current
             with tf.variable_scope('conv1'):
                 current = dict()
-                current['w'] = weightInitilization5(5, 1, c1_size, c2_size, weight_stddev)
+                current['w'] = weightInitilization5(3, 1, c1_size, c2_size, weight_stddev)
                 current['b'] = biasInitialization(c2_size, bias_stddev)
                 current['bn'] = bnInitialization(c2_size)
                 var['conv1'] = current
@@ -166,19 +166,19 @@ class RadNetModel(object):
 
             with tf.variable_scope('conv4'):
                 current = dict()
-                current['w'] = weightInitilization5(3, 1, c4_size, c3_size, weight_stddev)
+                current['w'] = weightInitilization5(5, 1, c4_size, c3_size, weight_stddev)
                 current['b'] = biasInitialization(c3_size, bias_stddev)
                 current['bn'] = bnInitialization(c3_size)
                 var['conv4'] = current
             with tf.variable_scope('conv5'):
                 current = dict()
-                current['w'] = weightInitilization5(3, 1, c3_size, c2_size, weight_stddev)
+                current['w'] = weightInitilization5(5, 1, c3_size, c2_size, weight_stddev)
                 current['b'] = biasInitialization(c2_size, bias_stddev)
                 current['bn'] = bnInitialization(c2_size)
                 var['conv5'] = current
             with tf.variable_scope('conv6'):
                 current = dict()
-                current['w'] = weightInitilization5(3, 1, c2_size, c1_size, weight_stddev)
+                current['w'] = weightInitilization5(5, 1, c2_size, c1_size, weight_stddev)
                 current['b'] = biasInitialization(c1_size, bias_stddev)
                 current['bn'] = bnInitialization(c1_size)
                 var['conv6'] = current
