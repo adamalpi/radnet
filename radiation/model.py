@@ -141,7 +141,7 @@ class RadNetModel(object):
         with tf.variable_scope('radnet'):
             with tf.variable_scope('conv0'):
                 current = dict()
-                current['w'] = weightInitilization5(3, 1, 2, c1_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 1, 2, c1_size, weight_stddev)
                 current['b'] = biasInitialization(c1_size, bias_stddev)
                 current['bn'] = bnInitialization(c1_size)
                 var['conv0'] = current
@@ -166,19 +166,19 @@ class RadNetModel(object):
 
             with tf.variable_scope('conv4'):
                 current = dict()
-                current['w'] = weightInitilization5(5, 1, c4_size, c3_size, weight_stddev)
+                current['w'] = weightInitilization5(3, 1, c4_size, c3_size, weight_stddev)
                 current['b'] = biasInitialization(c3_size, bias_stddev)
                 current['bn'] = bnInitialization(c3_size)
                 var['conv4'] = current
             with tf.variable_scope('conv5'):
                 current = dict()
-                current['w'] = weightInitilization5(5, 1, c3_size, c2_size, weight_stddev)
+                current['w'] = weightInitilization5(3, 1, c3_size, c2_size, weight_stddev)
                 current['b'] = biasInitialization(c2_size, bias_stddev)
                 current['bn'] = bnInitialization(c2_size)
                 var['conv5'] = current
             with tf.variable_scope('conv6'):
                 current = dict()
-                current['w'] = weightInitilization5(5, 1, c2_size, c1_size, weight_stddev)
+                current['w'] = weightInitilization5(3, 1, c2_size, c1_size, weight_stddev)
                 current['b'] = biasInitialization(c1_size, bias_stddev)
                 current['bn'] = bnInitialization(c1_size)
                 var['conv6'] = current
@@ -265,20 +265,17 @@ class RadNetModel(object):
             conv6 = ReLU(conv6)
             print(conv6.get_shape())
 
-
-
-
         with tf.name_scope('fc1'):
             # Reshape conv3 output to fit fully connected layer input
             fc1 = tf.reshape(conv6, [-1, self.vars['fc1']['w'].get_shape().as_list()[0]])
             fc1 = tf.add(tf.matmul(fc1, self.vars['fc1']['w']), self.vars['fc1']['b'])
-            fc1 = batchNorm(fc1, [0], self.vars['fc1']['bn'], self.phase_train)
+            #fc1 = batchNorm(fc1, [0], self.vars['fc1']['bn'], self.phase_train)
             fc1 = ReLU(fc1)
 
             #print(fc1.get_shape())
         with tf.name_scope('fc2'):
             fc2 = tf.add(tf.matmul(fc1, self.vars['fc2']['w']), self.vars['fc2']['b'])
-            fc2 = batchNorm(fc2, [0], self.vars['fc2']['bn'], self.phase_train)
+            #fc2 = batchNorm(fc2, [0], self.vars['fc2']['bn'], self.phase_train)
             fc2 = ReLU(fc2)
         with tf.name_scope('out'):
             out = tf.add(tf.matmul(fc2, self.vars['out']['w']), self.vars['out']['b'], name="output_node")
