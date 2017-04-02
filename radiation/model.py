@@ -108,6 +108,7 @@ def batchNorm(x, axes, vars, phase_train):
         normed = tf.nn.batch_normalization(x, mean, var, vars['beta'], vars['gamma'], 1e-3)
     return normed
 
+c0_size = 32
 c1_size = 64
 c2_size = 128
 c3_size = 256
@@ -141,13 +142,13 @@ class RadNetModel(object):
         with tf.variable_scope('radnet'):
             with tf.variable_scope('conv0'):
                 current = dict()
-                current['w'] = weightInitilization5(1, 1, 1, c1_size, weight_stddev)
-                current['b'] = biasInitialization(c1_size, bias_stddev)
-                current['bn'] = bnInitialization(c1_size)
+                current['w'] = weightInitilization5(1, 1, 1, c0_size, weight_stddev)
+                current['b'] = biasInitialization(c0_size, bias_stddev)
+                current['bn'] = bnInitialization(c0_size)
                 var['conv0'] = current
             with tf.variable_scope('conv1'):
                 current = dict()
-                current['w'] = weightInitilization5(2, 2, c1_size, c1_size, weight_stddev)
+                current['w'] = weightInitilization5(2, 2, c0_size, c1_size, weight_stddev)
                 current['b'] = biasInitialization(c1_size, bias_stddev)
                 current['bn'] = bnInitialization(c1_size)
                 var['conv1'] = current

@@ -131,7 +131,7 @@ def load_data_samples(files):
                 for i in range (0, len(input['radiation'])):
                     data.append(normalizeH(input['humidity'][i]))
                     data.append(normalizeT(input['air_temperature'][i]))
-                    label.append(normalizeR(input['radiation'][i]*86400))
+                    label.append((input['radiation'][i]*86400))
 
                 #for i in range (0, len(input['radiation'])):
 
