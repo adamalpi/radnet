@@ -143,7 +143,7 @@ def load_data_samples(files):
                 #    data.append(normalizeST(input['surface_temperature']))
 
                 #fill last 2 values with 0
-                for _ in range(0, 2):
+                for _ in range(0, 256-194):
                     data.append(0.0)
 
                 yield data, label, [id]
@@ -158,7 +158,7 @@ class FileReader(object):
     def __init__(self,
                  data_dir,
                  coord,
-                 n_input=196,
+                 n_input=256,
                  n_output=96,
                  queue_size=10000000,
                  test_percentage=0.2):
