@@ -148,7 +148,7 @@ class RadNetModel(object):
                 var['conv0'] = current
             with tf.variable_scope('conv1'):
                 current = dict()
-                current['w'] = weightInitilization5(2, 2, c0_size, c1_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 1, 1, c1_size, weight_stddev)
                 current['b'] = biasInitialization(c1_size, bias_stddev)
                 current['bn'] = bnInitialization(c1_size)
                 var['conv1'] = current
@@ -212,15 +212,15 @@ class RadNetModel(object):
         input_batch = tf.reshape(input_batch, shape=[-1, 14, 14, 1], name="input_node_reshaped")
 
 
-        with tf.name_scope('conv0'):
+        """with tf.name_scope('conv0'):
             #1x1 conv layer https://www.quora.com/What-is-a-1X1-convolution
             conv0 = conv2d(input_batch, self.vars['conv0']['w'], self.vars['conv0']['b'], strides=1, padding="VALID")
             #conv0 = batchNorm(conv0, [0, 1, 2], self.vars['conv0']['bn'], self.phase_train)
             conv0 = ReLU(conv0)
             #conv0 = pool2d(conv0, k=1)
-            print(conv0.get_shape())
+            print(conv0.get_shape())"""
         with tf.name_scope('conv1'):
-            conv1 = conv2d(conv0, self.vars['conv1']['w'], self.vars['conv1']['b'], strides=1)
+            conv1 = conv2d(input_batch, self.vars['conv1']['w'], self.vars['conv1']['b'], strides=1)
             #conv1 = batchNorm(conv1, [0, 1, 2], self.vars['conv1']['bn'], self.phase_train)
             print(conv1.get_shape())
             conv1 = pool2d(conv1, k=1, l=1)
