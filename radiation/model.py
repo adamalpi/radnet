@@ -208,8 +208,8 @@ class RadNetModel(object):
         print(input_batch.get_shape())
         # Pre-process the input
         # x is 64 x 1 tensor with padding at the end
-        input_batch = tf.reshape(input_batch, shape=[-1, 256], name="input_node")
-        input_batch = tf.reshape(input_batch, shape=[-1, 16, 16, 1], name="input_node_reshaped")
+        input_batch = tf.reshape(input_batch, shape=[-1, 196], name="input_node")
+        input_batch = tf.reshape(input_batch, shape=[-1, 14, 14, 1], name="input_node_reshaped")
 
 
         with tf.name_scope('conv0'):
