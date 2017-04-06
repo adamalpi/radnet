@@ -93,8 +93,8 @@ for c, st, h, t, r in iterator:
 print('ST:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oST.min, oST.max, oST.mean, oST.std))
 print('C:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oC.min, oC.max, oC.mean, oC.std))
 print('R:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oR.min, oR.max, oR.mean, oR.std))
-print('T:  min {:.10f} max {:.10f} mean {:.10f} Td {:.10f}'.format(oT.min, oT.max, oT.mean, oT.Td))
-print('H:  min {:.10f} max {:.10f} mean {:.10f} Hd {:.10f}'.format(oH.min, oH.max, oH.mean, oH.Hd))
+print('T:  min {:.10f} max {:.10f} mean {:.10f} Td {:.10f}'.format(oT.min, oT.max, oT.mean, oT.std))
+print('H:  min {:.10f} max {:.10f} mean {:.10f} Hd {:.10f}'.format(oH.min, oH.max, oH.mean, oH.std))
 
 
 
