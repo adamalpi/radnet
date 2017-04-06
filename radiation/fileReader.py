@@ -187,7 +187,7 @@ class FileReader(object):
                  coord,
                  n_input=256,
                  n_output=96,
-                 queue_size=10000000,
+                 queue_size=5000000,
                  test_percentage=0.2):
 
         self.data_dir = data_dir

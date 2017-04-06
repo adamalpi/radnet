@@ -215,40 +215,40 @@ class RadNetModel(object):
         with tf.name_scope('conv0'):
             #1x1 conv layer https://www.quora.com/What-is-a-1X1-convolution
             conv0 = conv2d(input_batch, self.vars['conv0']['w'], self.vars['conv0']['b'], strides=1, padding="VALID")
-            conv0 = batchNorm(conv0, [0, 1, 2], self.vars['conv0']['bn'], self.phase_train)
+            #conv0 = batchNorm(conv0, [0, 1, 2], self.vars['conv0']['bn'], self.phase_train)
             conv0 = ReLU(conv0)
             #conv0 = pool2d(conv0, k=1)
             print(conv0.get_shape())
         with tf.name_scope('conv1'):
             conv1 = conv2d(conv0, self.vars['conv1']['w'], self.vars['conv1']['b'], strides=1)
-            conv1 = batchNorm(conv1, [0, 1, 2], self.vars['conv1']['bn'], self.phase_train)
+            #conv1 = batchNorm(conv1, [0, 1, 2], self.vars['conv1']['bn'], self.phase_train)
             print(conv1.get_shape())
             conv1 = pool2d(conv1, k=1, l=1)
             conv1 = ReLU(conv1)
             print(conv1.get_shape())
         with tf.name_scope('conv2'):
             conv2 = conv2d(conv1, self.vars['conv2']['w'], self.vars['conv2']['b'], strides=1)
-            conv2 = batchNorm(conv2, [0, 1, 2], self.vars['conv2']['bn'], self.phase_train)
+            #conv2 = batchNorm(conv2, [0, 1, 2], self.vars['conv2']['bn'], self.phase_train)
             print(conv2.get_shape())
             conv2 = pool2d(conv2, k=2, l=2)
             conv2 = ReLU(conv2)
             print(conv2.get_shape())
         with tf.name_scope('conv3'):
             conv3 = conv2d(conv2, self.vars['conv3']['w'], self.vars['conv3']['b'], strides=1)
-            conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv3']['bn'], self.phase_train)
+            #conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv3']['bn'], self.phase_train)
             conv3 = pool2d(conv3, k=1, l=1)
             conv3 = ReLU(conv3)
             print(conv3.get_shape())
         with tf.name_scope('conv4'):
             conv4 = conv2d(conv3, self.vars['conv4']['w'], self.vars['conv4']['b'], strides=1)
-            conv4 = batchNorm(conv4, [0, 1, 2], self.vars['conv4']['bn'], self.phase_train)
+            #conv4 = batchNorm(conv4, [0, 1, 2], self.vars['conv4']['bn'], self.phase_train)
             print(conv4.get_shape())
             conv4 = pool2d(conv4, k=2, l=2)
             conv4 = ReLU(conv4)
             print(conv4.get_shape())
         with tf.name_scope('conv5'):
             conv5 = conv2d(conv4, self.vars['conv5']['w'], self.vars['conv5']['b'], strides=1)
-            conv5 = batchNorm(conv5, [0, 1, 2], self.vars['conv5']['bn'], self.phase_train)
+            #conv5 = batchNorm(conv5, [0, 1, 2], self.vars['conv5']['bn'], self.phase_train)
             print(conv5.get_shape())
             conv5 = pool2d(conv5, k=2, l=2)
             conv5 = ReLU(conv5)
@@ -259,13 +259,13 @@ class RadNetModel(object):
             # Reshape conv3 output to fit fully connected layer input
             fc1 = tf.reshape(conv5, [-1, self.vars['fc1']['w'].get_shape().as_list()[0]])
             fc1 = tf.add(tf.matmul(fc1, self.vars['fc1']['w']), self.vars['fc1']['b'])
-            fc1 = batchNorm(fc1, [0], self.vars['fc1']['bn'], self.phase_train)
+            #fc1 = batchNorm(fc1, [0], self.vars['fc1']['bn'], self.phase_train)
             fc1 = ReLU(fc1)
 
             #print(fc1.get_shape())
         with tf.name_scope('fc2'):
             fc2 = tf.add(tf.matmul(fc1, self.vars['fc2']['w']), self.vars['fc2']['b'])
-            fc2 = batchNorm(fc2, [0], self.vars['fc2']['bn'], self.phase_train)
+            #fc2 = batchNorm(fc2, [0], self.vars['fc2']['bn'], self.phase_train)
             fc2 = ReLU(fc2)
         with tf.name_scope('out'):
             out = tf.add(tf.matmul(fc2, self.vars['out']['w']), self.vars['out']['b'], name="output_node")
