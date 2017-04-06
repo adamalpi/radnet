@@ -114,7 +114,7 @@ c2_size = 128
 c3_size = 256
 c4_size = 512
 fc1_size = 1024
-fc2_size = 256
+fc2_size = 512
 out_size = 96
 weight_stddev = 0.3
 bias_stddev = 0.03
@@ -148,19 +148,19 @@ class RadNetModel(object):
                 var['conv0'] = current
             with tf.variable_scope('conv1'):
                 current = dict()
-                current['w'] = weightInitilization5(1, 1, 1, c1_size, weight_stddev)
-                current['b'] = biasInitialization(c1_size, bias_stddev)
-                current['bn'] = bnInitialization(c1_size)
+                current['w'] = weightInitilization5(1, 1, 1, c0_size, weight_stddev)
+                current['b'] = biasInitialization(c0_size, bias_stddev)
+                current['bn'] = bnInitialization(c0_size)
                 var['conv1'] = current
             with tf.variable_scope('conv2'):
                 current = dict()
-                current['w'] = weightInitilization5(2, 2, c1_size, c2_size, weight_stddev)
-                current['b'] = biasInitialization(c2_size, bias_stddev)
-                current['bn'] = bnInitialization(c2_size)
+                current['w'] = weightInitilization5(2, 2, c0_size, c1_size, weight_stddev)
+                current['b'] = biasInitialization(c1_size, bias_stddev)
+                current['bn'] = bnInitialization(c1_size)
                 var['conv2'] = current
             with tf.variable_scope('conv3'):
                 current = dict()
-                current['w'] = weightInitilization5(2, 2, c2_size, c2_size, weight_stddev)
+                current['w'] = weightInitilization5(2, 2, c1_size, c2_size, weight_stddev)
                 current['b'] = biasInitialization(c2_size, bias_stddev)
                 current['bn'] = bnInitialization(c2_size)
                 var['conv3'] = current
