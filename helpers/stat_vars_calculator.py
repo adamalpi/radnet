@@ -26,13 +26,14 @@ def load_data_samples(directory):
                 id += 1
                 input = json.loads(line)
                 # todo normalize the input
-                #data = []
-                #data.append(input['co2'])
-                #data.append(input['surface_temperature'])
-                #for i in range (0, len(input['radiation'])):
-                #    data.append(input['humidity'][i])
-                #    data.append(input['air_temperature'][i])
-                yield input['co2'], input['surface_temperature']
+                data = []
+                data.append(input['co2'])
+                data.append(input['surface_temperature'])
+                for i in range (0, len(input['radiation'])):
+                    data.append(input['humidity'][i])
+                    data.append(input['air_temperature'][i])
+                    yield input['co2'], input['surface_temperature'], input['humidity'][i], \
+                          input['air_temperature'][i], input['radiation'][i]
 
 #http://stackoverflow.com/questions/5543651/computing-standard-deviation-in-a-stream
 class OnlineStats(object):
@@ -74,20 +75,26 @@ vars = OnlineStats()
 
 oR = OnlineStats(ddof=0)
 oC = OnlineStats(ddof=0)
+oH = OnlineStats(ddof=0)
+oST = OnlineStats(ddof=0)
 oT = OnlineStats(ddof=0)
 
 i = 0
-for c,t in iterator:
+for c, st, h, t, r in iterator:
     i += 1
     oT.include(t)
     oC.include(c)
-    #oR.include(r)
+    oR.include(r)
+    oST.include(st)
+    oH.include(h)
     if (i%100000 == 0):
         print(i)
 
-print('T:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oT.min, oT.max, oT.mean, oT.std))
+print('ST:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oST.min, oST.max, oST.mean, oST.std))
 print('C:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oC.min, oC.max, oC.mean, oC.std))
-#print('R:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oR.min, oR.max, oR.mean, oR.std))
+print('R:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oR.min, oR.max, oR.mean, oR.std))
+print('T:  min {:.10f} max {:.10f} mean {:.10f} Td {:.10f}'.format(oT.min, oT.max, oT.mean, oT.Td))
+print('H:  min {:.10f} max {:.10f} mean {:.10f} Hd {:.10f}'.format(oH.min, oH.max, oH.mean, oH.Hd))
 
 
 

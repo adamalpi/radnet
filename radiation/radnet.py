@@ -73,7 +73,7 @@ class RadNet:
         """
 
         # Line to be uncommented with the climt integration
-        # sample = self.__pre_process(sample)
+        sample = self.__pre_process(sample)
         prediction = self.sess.run(
                 self.output_node,
                 feed_dict={
