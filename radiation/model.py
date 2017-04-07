@@ -142,13 +142,13 @@ class RadNetModel(object):
         with tf.variable_scope('radnet'):
             with tf.variable_scope('conv0'):
                 current = dict()
-                current['w'] = weightInitilization5(1, 1, 1, c0_size, weight_stddev)
-                current['b'] = biasInitialization(c0_size, bias_stddev)
-                current['bn'] = bnInitialization(c0_size)
+                current['w'] = weightInitilization5(1, 1, 1, 16, weight_stddev)
+                current['b'] = biasInitialization(16, bias_stddev)
+                current['bn'] = bnInitialization(16)
                 var['conv0'] = current
             with tf.variable_scope('conv1'):
                 current = dict()
-                current['w'] = weightInitilization5(1, 1, 1, c0_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 1, 16, c0_size, weight_stddev)
                 current['b'] = biasInitialization(c0_size, bias_stddev)
                 current['bn'] = bnInitialization(c0_size)
                 var['conv1'] = current
@@ -212,15 +212,15 @@ class RadNetModel(object):
         input_batch = tf.reshape(input_batch, shape=[-1, 6, 6, 1], name="input_node_reshaped")
 
 
-        """with tf.name_scope('conv0'):
+        with tf.name_scope('conv0'):
             #1x1 conv layer https://www.quora.com/What-is-a-1X1-convolution
             conv0 = conv2d(input_batch, self.vars['conv0']['w'], self.vars['conv0']['b'], strides=1, padding="VALID")
-            #conv0 = batchNorm(conv0, [0, 1, 2], self.vars['conv0']['bn'], self.phase_train)
+            conv0 = batchNorm(conv0, [0, 1, 2], self.vars['conv0']['bn'], self.phase_train)
             conv0 = ReLU(conv0)
             #conv0 = pool2d(conv0, k=1)
-            print(conv0.get_shape())"""
+            print(conv0.get_shape())
         with tf.name_scope('conv1'):
-            conv1 = conv2d(input_batch, self.vars['conv1']['w'], self.vars['conv1']['b'], strides=1)
+            conv1 = conv2d(conv0, self.vars['conv1']['w'], self.vars['conv1']['b'], strides=1)
             conv1 = batchNorm(conv1, [0, 1, 2], self.vars['conv1']['bn'], self.phase_train)
             print(conv1.get_shape())
             conv1 = pool2d(conv1, k=1, l=1)
@@ -294,12 +294,14 @@ class RadNetModel(object):
             pred_output = self._create_network(input)
 
             # Huber loss
-            loss = self.huber_loss(real_output, pred_output)
-            # loss = tf.reduce_mean(tf.squared_difference(pred_output, real_output))
+            #loss = self.huber_loss(real_output, pred_output)
+            tf.nn.softmax_cross_entropy_with_logits
+            loss = tf.reduce_mean(tf.squared_difference(pred_output, real_output))
             return id_file, real_output, pred_output, loss
 
     def huber_loss(self, y_true, y_pred, max_grad=1.):
         """Calculates the huber loss.
+        http://stackoverflow.com/questions/39106732/how-do-i-combine-tf-absolute-and-tf-square-to-create-the-huber-loss-function-in
 
         Parameters
         ----------
