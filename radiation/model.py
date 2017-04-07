@@ -278,12 +278,15 @@ class RadNetModel(object):
         with tf.name_scope('radnet'):
             output = self._create_network(input_batch)
             with tf.name_scope('loss'):
-                loss = tf.reduce_mean(tf.squared_difference(output, real_output))
+                # Huber loss
+                loss = self.huber_loss(real_output, input_batch)
+
+                # MSE loss
+                #loss = tf.reduce_mean(tf.squared_difference(output, real_output))
                 #tf.scalar_summary('loss', loss)
                 tf.summary.scalar('loss', loss)
 
                 return loss
-
 
     def predict(self, input, real_output, id_file):
         with tf.name_scope('radnet'):
@@ -291,3 +294,26 @@ class RadNetModel(object):
             loss = tf.reduce_mean(tf.squared_difference(pred_output, real_output))
             return id_file, real_output, pred_output, loss
 
+    def huber_loss(y_true, y_pred, max_grad=1.):
+        """Calculates the huber loss.
+
+        Parameters
+        ----------
+        y_true: np.array, tf.Tensor
+          Target value.
+        y_pred: np.array, tf.Tensor
+          Predicted value.
+        max_grad: float, optional
+          Positive floating point value. Represents the maximum possible
+          gradient magnitude.
+
+        Returns
+        -------
+        tf.Tensor
+          The huber loss.
+        """
+        err = tf.abs(y_true - y_pred, name='abs')
+        mg = tf.constant(max_grad, name='max_grad')
+        lin = mg * (err - .5 * mg)
+        quad = .5 * err * err
+        return tf.where(err < mg, quad, lin)
