@@ -291,7 +291,10 @@ class RadNetModel(object):
     def predict(self, input, real_output, id_file):
         with tf.name_scope('radnet'):
             pred_output = self._create_network(input)
-            loss = tf.reduce_mean(tf.squared_difference(pred_output, real_output))
+
+            # Huber loss
+            loss = self.huber_loss(real_output, pred_output)
+            # loss = tf.reduce_mean(tf.squared_difference(pred_output, real_output))
             return id_file, real_output, pred_output, loss
 
     def huber_loss(self, y_true, y_pred, max_grad=1.):
