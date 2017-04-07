@@ -280,7 +280,7 @@ class RadNetModel(object):
             with tf.name_scope('loss'):
                 # Huber loss
                 loss = self.huber_loss(real_output, output)
-
+                print(loss.get_shape())
                 # MSE loss
                 #loss = tf.reduce_mean(tf.squared_difference(output, real_output))
                 #tf.scalar_summary('loss', loss)
