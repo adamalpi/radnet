@@ -112,9 +112,10 @@ c0_size = 32
 c1_size = 64
 c2_size = 128
 c3_size = 256
+c34_size = 384
 c4_size = 512
 fc1_size = 1024
-fc2_size = 512
+fc2_size = 256
 out_size = 16
 weight_stddev = 0.3
 bias_stddev = 0.03
@@ -142,38 +143,38 @@ class RadNetModel(object):
         with tf.variable_scope('radnet'):
             with tf.variable_scope('conv0'):
                 current = dict()
-                current['w'] = weightInitilization5(1, 1, 1, 16, weight_stddev)
-                current['b'] = biasInitialization(16, bias_stddev)
-                current['bn'] = bnInitialization(16)
+                current['w'] = weightInitilization5(1, 1, 1, c0_size, weight_stddev)
+                current['b'] = biasInitialization(c0_size, bias_stddev)
+                current['bn'] = bnInitialization(c0_size)
                 var['conv0'] = current
             with tf.variable_scope('conv1'):
                 current = dict()
-                current['w'] = weightInitilization5(1, 1, 16, c0_size, weight_stddev)
-                current['b'] = biasInitialization(c0_size, bias_stddev)
-                current['bn'] = bnInitialization(c0_size)
-                var['conv1'] = current
-            with tf.variable_scope('conv2'):
-                current = dict()
-                current['w'] = weightInitilization5(2, 2, c0_size, c1_size, weight_stddev)
+                current['w'] = weightInitilization5(1, 1, c0_size, c1_size, weight_stddev)
                 current['b'] = biasInitialization(c1_size, bias_stddev)
                 current['bn'] = bnInitialization(c1_size)
-                var['conv2'] = current
-            with tf.variable_scope('conv3'):
+                var['conv1'] = current
+            with tf.variable_scope('conv2'):
                 current = dict()
                 current['w'] = weightInitilization5(2, 2, c1_size, c2_size, weight_stddev)
                 current['b'] = biasInitialization(c2_size, bias_stddev)
                 current['bn'] = bnInitialization(c2_size)
-                var['conv3'] = current
-
-            with tf.variable_scope('conv4'):
+                var['conv2'] = current
+            with tf.variable_scope('conv3'):
                 current = dict()
                 current['w'] = weightInitilization5(2, 2, c2_size, c3_size, weight_stddev)
                 current['b'] = biasInitialization(c3_size, bias_stddev)
                 current['bn'] = bnInitialization(c3_size)
+                var['conv3'] = current
+
+            with tf.variable_scope('conv4'):
+                current = dict()
+                current['w'] = weightInitilization5(2, 2, c3_size, c34_size, weight_stddev)
+                current['b'] = biasInitialization(c34_size, bias_stddev)
+                current['bn'] = bnInitialization(c34_size)
                 var['conv4'] = current
             with tf.variable_scope('conv5'):
                 current = dict()
-                current['w'] = weightInitilization5(2, 2, c3_size, c4_size, weight_stddev)
+                current['w'] = weightInitilization5(2, 2, c34_size, c4_size, weight_stddev)
                 current['b'] = biasInitialization(c4_size, bias_stddev)
                 current['bn'] = bnInitialization(c4_size)
                 var['conv5'] = current
@@ -282,9 +283,9 @@ class RadNetModel(object):
                 loss = tf.reduce_mean(self.huber_loss(real_output, output))
                 print(loss.get_shape())
                 # MSE loss
-                los = tf.reduce_mean(tf.squared_difference(output, real_output))
+                #los = tf.reduce_mean(tf.squared_difference(output, real_output))
                 #tf.scalar_summary('loss', loss)
-                print(los.get_shape())
+                #print(los.get_shape())
                 tf.summary.scalar('loss', loss)
 
                 return loss
@@ -295,7 +296,6 @@ class RadNetModel(object):
 
             # Huber loss
             #loss = self.huber_loss(real_output, pred_output)
-            tf.nn.softmax_cross_entropy_with_logits
             loss = tf.reduce_mean(tf.squared_difference(pred_output, real_output))
             return id_file, real_output, pred_output, loss
 
