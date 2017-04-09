@@ -159,13 +159,24 @@ class RadNetModel(object):
                 current['b'] = biasInitialization(c2_size, bias_stddev)
                 current['bn'] = bnInitialization(c2_size)
                 var['conv2'] = current
+            with tf.variable_scope('conv22'):
+                current = dict()
+                current['w'] = weightInitilization5(2, 2, c2_size, c2_size, weight_stddev)
+                current['b'] = biasInitialization(c2_size, bias_stddev)
+                current['bn'] = bnInitialization(c2_size)
+                var['conv22'] = current
             with tf.variable_scope('conv3'):
                 current = dict()
                 current['w'] = weightInitilization5(2, 2, c2_size, c3_size, weight_stddev)
                 current['b'] = biasInitialization(c3_size, bias_stddev)
                 current['bn'] = bnInitialization(c3_size)
                 var['conv3'] = current
-
+            with tf.variable_scope('conv33'):
+                current = dict()
+                current['w'] = weightInitilization5(2, 2, c3_size, c3_size, weight_stddev)
+                current['b'] = biasInitialization(c3_size, bias_stddev)
+                current['bn'] = bnInitialization(c3_size)
+                var['conv33'] = current
             with tf.variable_scope('conv4'):
                 current = dict()
                 current['w'] = weightInitilization5(2, 2, c3_size, c34_size, weight_stddev)
@@ -231,12 +242,25 @@ class RadNetModel(object):
             conv2 = conv2d(conv1, self.vars['conv2']['w'], self.vars['conv2']['b'], strides=1)
             conv2 = batchNorm(conv2, [0, 1, 2], self.vars['conv2']['bn'], self.phase_train)
             print(conv2.get_shape())
+            conv2 = pool2d(conv2, k=1, l=1)
+            conv2 = ReLU(conv2)
+            print(conv2.get_shape())
+        with tf.name_scope('conv22'):
+            conv2 = conv2d(conv2, self.vars['conv22']['w'], self.vars['conv22']['b'], strides=1)
+            conv2 = batchNorm(conv2, [0, 1, 2], self.vars['conv22']['bn'], self.phase_train)
+            print(conv2.get_shape())
             conv2 = pool2d(conv2, k=2, l=2)
             conv2 = ReLU(conv2)
             print(conv2.get_shape())
         with tf.name_scope('conv3'):
             conv3 = conv2d(conv2, self.vars['conv3']['w'], self.vars['conv3']['b'], strides=1)
             conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv3']['bn'], self.phase_train)
+            conv3 = pool2d(conv3, k=1, l=1)
+            conv3 = ReLU(conv3)
+            print(conv3.get_shape())
+        with tf.name_scope('conv33'):
+            conv3 = conv2d(conv3, self.vars['conv33']['w'], self.vars['conv33']['b'], strides=1)
+            conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv33']['bn'], self.phase_train)
             conv3 = pool2d(conv3, k=1, l=1)
             conv3 = ReLU(conv3)
             print(conv3.get_shape())
