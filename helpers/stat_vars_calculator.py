@@ -67,7 +67,7 @@ class OnlineStats(object):
 
 
 
-dir = '/home/adam/data/data_v5/'
+dir = '/home/adam/data/data_v6/'
 
 iterator = load_data_samples(dir)
 
