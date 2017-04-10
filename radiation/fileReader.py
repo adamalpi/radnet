@@ -62,6 +62,7 @@ T:  min 100.0000000000 max 328.1996104878 mean 262.0392112351 Td 27.4567452039
 H:  min 0.0000000218 max 101.0662332648 mean 4.2796499939 Hd 6.1626364326
 """
 """
+data_v4
 minT = 100.0000000000
 maxT = 328.1996104878
 meanT = 262.0392112351
@@ -89,6 +90,9 @@ R:  min -43.3588707167 max 7.0534840711 mean -2.2987180030 std 3.4057274863
 T:  min 100.0000000000 max 327.2450548496 mean 260.3624504585 Td 27.1639526147
 H:  min 0.0000001027 max 81.4849408735 mean 3.9085964279 Hd 5.6914521830
 """
+
+"""
+data_v5
 minT = 100.0000000000
 maxT = 327.2450548496
 meanT = 260.3624504585
@@ -110,6 +114,33 @@ stdST = 0.0
 meanCO2 = 0.0003000000
 stdCO2 = 0.0
 
+ST:  min 100.0000000000 max 333.1499923913 mean 268.1782537513 std 37.5253217546
+C:  min 0.0000000001 max 0.0099999913 mean 0.0017316786 std 0.0023871746
+R:  min -60.0309877358 max 13.4218149025 mean -1.4530629607 std 3.3745299288
+T:  min 100.0000000000 max 355.3580271402 mean 228.5427318133 Td 46.3281757901
+H:  min 0.0000000000 max 1246.3252393693 mean 3.9482684404 Hd 12.8864789784
+"""
+
+minT = 100.0000000000
+maxT = 355.3580271402
+meanT = 228.5427318133
+stdT = 46.3281757901
+
+minH = 0.0000001027
+maxH = 1246.3252393693
+meanH = 3.9482684404
+stdH = 12.8864789784
+
+minR = -43.3588707167
+maxR = 7.0534840711
+meanR = -1.4530629607
+stdR = 3.3745299288
+
+meanST = 268.1782537513
+stdST = 37.5253217546
+
+meanCO2 = 0.0017316786
+stdCO2 = 0.0023871746
 
 epoch = 0
 
@@ -182,8 +213,8 @@ def load_data_samples(files):
                 data = []
                 label = []
 
-                #data.append(normalizeCO2(input['co2']))
-                #data.append(normalizeST(input['surface_temperature']))
+                data.append(normalizeCO2(input['co2']))
+                data.append(normalizeST(input['surface_temperature']))
                 for i in range (0, len(input['radiation'])):
                     data.append(normalizeT(input['air_temperature'][i]))
                     data.append(normalizeH(input['humidity'][i]))
@@ -199,7 +230,7 @@ def load_data_samples(files):
                 #    data.append(normalizeST(input['surface_temperature']))
 
                 #fill last 2 values with 0
-                for _ in range(0, 36-32):
+                for _ in range(0, 36-34):
                     data.append(0.0)
 
                 yield data, label, [id]
