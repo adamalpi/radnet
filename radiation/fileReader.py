@@ -245,8 +245,8 @@ class FileReader(object):
     def __init__(self,
                  data_dir,
                  coord,
-                 n_input=36,
-                 n_output=16,
+                 n_input=196,
+                 n_output=96,
                  queue_size=5000000,
                  test_percentage=0.2):
 
