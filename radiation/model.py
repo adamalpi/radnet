@@ -114,8 +114,8 @@ c2_size = 128
 c3_size = 256
 c34_size = 384
 c4_size = 512
-fc1_size = 1024
-fc2_size = 256
+fc1_size = 2048
+fc2_size = 512
 out_size = 96
 weight_stddev = 0.3
 bias_stddev = 0.03
@@ -261,14 +261,14 @@ class RadNetModel(object):
         with tf.name_scope('conv33'):
             conv3 = conv2d(conv3, self.vars['conv33']['w'], self.vars['conv33']['b'], strides=1)
             conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv33']['bn'], self.phase_train)
-            conv3 = pool2d(conv3, k=1, l=1)
+            conv3 = pool2d(conv3, k=2, l=2)
             conv3 = ReLU(conv3)
             print(conv3.get_shape())
         with tf.name_scope('conv4'):
             conv4 = conv2d(conv3, self.vars['conv4']['w'], self.vars['conv4']['b'], strides=1)
             conv4 = batchNorm(conv4, [0, 1, 2], self.vars['conv4']['bn'], self.phase_train)
             print(conv4.get_shape())
-            conv4 = pool2d(conv4, k=2, l=2)
+            conv4 = pool2d(conv4, k=1, l=1)
             conv4 = ReLU(conv4)
             print(conv4.get_shape())
         with tf.name_scope('conv5'):
