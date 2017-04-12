@@ -116,7 +116,7 @@ c34_size = 384
 c4_size = 512
 fc1_size = 1024
 fc2_size = 256
-out_size = 16
+out_size = 96
 weight_stddev = 0.3
 bias_stddev = 0.03
 
@@ -220,8 +220,8 @@ class RadNetModel(object):
         print(input_batch.get_shape())
         # Pre-process the input
         # x is 64 x 1 tensor with padding at the end
-        input_batch = tf.reshape(input_batch, shape=[-1, 36], name="input_node")
-        input_batch = tf.reshape(input_batch, shape=[-1, 6, 6, 1], name="input_node_reshaped")
+        input_batch = tf.reshape(input_batch, shape=[-1, 196], name="input_node")
+        input_batch = tf.reshape(input_batch, shape=[-1, 14, 14, 1], name="input_node_reshaped")
 
 
         with tf.name_scope('conv0'):
@@ -268,7 +268,7 @@ class RadNetModel(object):
             conv4 = conv2d(conv3, self.vars['conv4']['w'], self.vars['conv4']['b'], strides=1)
             conv4 = batchNorm(conv4, [0, 1, 2], self.vars['conv4']['bn'], self.phase_train)
             print(conv4.get_shape())
-            conv4 = pool2d(conv4, k=1, l=1)
+            conv4 = pool2d(conv4, k=2, l=2)
             conv4 = ReLU(conv4)
             print(conv4.get_shape())
         with tf.name_scope('conv5'):
