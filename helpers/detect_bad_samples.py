@@ -31,7 +31,7 @@ def load_data_samples(directory):
                 mini = np.amin(h)
 
                 if (maxi > 500 or mini < 0):
-                    yield line
+                    yield line, mini, maxi
                 #      np.array(input['air_temperature']), np.array(input['radiation'])
 
 #http://stackoverflow.com/questions/5543651/computing-standard-deviation-in-a-stream
@@ -80,7 +80,7 @@ oT = OnlineStats(ddof=0)
 
 i = 0
 with open('weird_data', 'a') as myfile:
-    for line in iterator:
+    for line, mini, maxi in iterator:
         i += 1
         """
         oT.include(t)
@@ -92,7 +92,7 @@ with open('weird_data', 'a') as myfile:
 
         myfile.write(line + os.linesep)
         #if (i%10 == 0):
-        print(i)
+        print('{}: min {:.10f} max {:.10f}'.format(mini, maxi))
 """
 print('ST:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oST.min, oST.max, oST.mean, oST.std))
 print('C:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oC.min, oC.max, oC.mean, oC.std))
