@@ -91,8 +91,8 @@ with open('weird_data', 'a') as myfile:
         """
 
         myfile.write(line + os.linesep)
-        if (i%10 == 0):
-            print(i)
+        #if (i%10 == 0):
+        print(i)
 """
 print('ST:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oST.min, oST.max, oST.mean, oST.std))
 print('C:  min {:.10f} max {:.10f} mean {:.10f} std {:.10f}'.format(oC.min, oC.max, oC.mean, oC.std))
