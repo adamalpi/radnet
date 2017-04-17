@@ -108,12 +108,12 @@ def batchNorm(x, axes, vars, phase_train):
         normed = tf.nn.batch_normalization(x, mean, var, vars['beta'], vars['gamma'], 1e-3)
     return normed
 
-c0_size = 32
-c1_size = 64
-c2_size = 128
-c3_size = 256
-c34_size = 384
-c4_size = 512
+c0_size = 128
+c1_size = 256
+c2_size = 512
+c3_size = 1024
+c34_size = 2048
+c4_size = 4096
 fc1_size = 2048
 fc2_size = 512
 out_size = 96
