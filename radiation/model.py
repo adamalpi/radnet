@@ -155,7 +155,7 @@ class RadNetModel(object):
                 var['conv1'] = current
             with tf.variable_scope('conv2'):
                 current = dict()
-                current['w'] = weightInitilization5(1, 1, c1_size, c2_size, weight_stddev)
+                current['w'] = weightInitilization5(3, 3, c1_size, c2_size, weight_stddev)
                 current['b'] = biasInitialization(c2_size, bias_stddev)
                 current['bn'] = bnInitialization(c2_size)
                 var['conv2'] = current
@@ -167,7 +167,7 @@ class RadNetModel(object):
                 var['conv22'] = current
             with tf.variable_scope('conv3'):
                 current = dict()
-                current['w'] = weightInitilization5(1, 1, c2_size, c3_size, weight_stddev)
+                current['w'] = weightInitilization5(3, 3, c2_size, c3_size, weight_stddev)
                 current['b'] = biasInitialization(c3_size, bias_stddev)
                 current['bn'] = bnInitialization(c3_size)
                 var['conv3'] = current
