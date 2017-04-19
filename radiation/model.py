@@ -13,7 +13,8 @@ def pool2d(x, k=2, l=2):
 
 def ReLU(x):
     # return tf.nn.relu(x)
-    return leakyReLU(x, 0.001)
+    # return leakyReLU(x, 0.001)
+    return parametricReLU(x)
 
 
 def Sigmoid(x):
