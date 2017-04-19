@@ -38,7 +38,7 @@ def biasInitialization(a, bstddev):
     # return tf.Variable(tf.zeros([a]))
 
 
-def parametricReLU(_x, alfa):
+def parametricReLU(_x):
     # http://stackoverflow.com/questions/39975676/how-to-implement-prelu-activation-in-tensorflow
     print('estoy triste')
 
