@@ -40,7 +40,7 @@ def biasInitialization(a, bstddev):
 
 def parametricReLU(x, alpha):
     # http://stackoverflow.com/questions/39975676/how-to-implement-prelu-activation-in-tensorflow
-
+    # https://github.com/tflearn/tflearn/blob/4ba8c8d78bf1bbdfc595bf547bad30580cb4c20b/tflearn/activations.py#L191
     pos = tf.nn.relu(x)
     neg = alpha * (x - tf.abs(x)) * 0.5
 
@@ -122,8 +122,8 @@ c0_size = 64
 c1_size = 128
 c2_size = 256
 c3_size = 512
-c34_size = 2048
-c4_size = 4096
+c34_size = 1024
+c4_size = 512
 
 fc1_size = 2048
 fc2_size = 256
@@ -194,20 +194,22 @@ class RadNetModel(object):
                 current['bn'] = bnInitialization(c3_size)
                 current['pr'] = preluInitialization(c3_size)
                 var['conv33'] = current
-            """
+
             with tf.variable_scope('conv4'):
                 current = dict()
                 current['w'] = weightInitilization5(3, 3, c3_size, c34_size, weight_stddev)
                 current['b'] = biasInitialization(c34_size, bias_stddev)
                 current['bn'] = bnInitialization(c34_size)
+                current['pr'] = preluInitialization(c3_size)
                 var['conv4'] = current
             with tf.variable_scope('conv5'):
                 current = dict()
                 current['w'] = weightInitilization5(3, 3, c34_size, c4_size, weight_stddev)
                 current['b'] = biasInitialization(c4_size, bias_stddev)
                 current['bn'] = bnInitialization(c4_size)
+                current['pr'] = preluInitialization(c3_size)
                 var['conv5'] = current
-            """
+
 
 
             with tf.variable_scope('fc1'):
@@ -279,27 +281,29 @@ class RadNetModel(object):
             print(conv3.get_shape())
         with tf.name_scope('conv33'):
             conv3 = conv2d(conv3, self.vars['conv33']['w'], self.vars['conv33']['b'], strides=1)
-            conv3 = pool2d(conv3, k=2, l=2)
+            conv3 = pool2d(conv3, k=1, l=1)
             conv3 = ReLU(conv3, self.vars['conv33']['pr'])
             conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv33']['bn'], self.phase_train)
 
             print(conv3.get_shape())
-        """
+
         with tf.name_scope('conv4'):
             conv4 = conv2d(conv3, self.vars['conv4']['w'], self.vars['conv4']['b'], strides=1)
-            conv4 = batchNorm(conv4, [0, 1, 2], self.vars['conv4']['bn'], self.phase_train)
             print(conv4.get_shape())
             conv4 = pool2d(conv4, k=1, l=1)
-            conv4 = ReLU(conv4)
+            conv4 = ReLU(conv4, self.vars['conv4']['pr'])
+            conv4 = batchNorm(conv4, [0, 1, 2], self.vars['conv4']['bn'], self.phase_train)
+
             print(conv4.get_shape())
         with tf.name_scope('conv5'):
             conv5 = conv2d(conv4, self.vars['conv5']['w'], self.vars['conv5']['b'], strides=1)
-            conv5 = batchNorm(conv5, [0, 1, 2], self.vars['conv5']['bn'], self.phase_train)
             print(conv5.get_shape())
             conv5 = pool2d(conv5, k=2, l=2)
-            conv5 = ReLU(conv5)
+            conv5 = ReLU(conv5, self.vars['conv5']['pr'])
+            conv5 = batchNorm(conv5, [0, 1, 2], self.vars['conv5']['bn'], self.phase_train)
+
             print(conv5.get_shape())
-        """
+
 
         with tf.name_scope('fc1'):
             # Reshape conv3 output to fit fully connected layer input
