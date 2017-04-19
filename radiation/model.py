@@ -216,13 +216,14 @@ class RadNetModel(object):
                 current['w'] = weightInitilization3(2 * 2 * c3_size, fc1_size, weight_stddev)
                 current['b'] = biasInitialization(fc1_size, bias_stddev)
                 current['bn'] = bnInitialization(fc1_size)
+                current['pr'] = preluInitialization(fc1_size)
                 var['fc1'] = current
             with tf.variable_scope('fc2'):
                 current = dict()
                 current['w'] = weightInitilization3(fc1_size, fc2_size, weight_stddev)
                 current['b'] = biasInitialization(fc2_size, bias_stddev)
                 current['bn'] = bnInitialization(fc2_size)
-
+                current['pr'] = preluInitialization(fc2_size)
                 var['fc2'] = current
             with tf.variable_scope('out'):
                 current = dict()
@@ -304,13 +305,13 @@ class RadNetModel(object):
             # Reshape conv3 output to fit fully connected layer input
             fc1 = tf.reshape(conv3, [-1, self.vars['fc1']['w'].get_shape().as_list()[0]])
             fc1 = tf.add(tf.matmul(fc1, self.vars['fc1']['w']), self.vars['fc1']['b'])
-            fc1 = ReLU(fc1)
+            fc1 = ReLU(fc1, self.vars['fc1']['pr'])
             fc1 = batchNorm(fc1, [0], self.vars['fc1']['bn'], self.phase_train)
 
             #print(fc1.get_shape())
         with tf.name_scope('fc2'):
             fc2 = tf.add(tf.matmul(fc1, self.vars['fc2']['w']), self.vars['fc2']['b'])
-            fc2 = ReLU(fc2)
+            fc2 = ReLU(fc2, self.vars['fc2']['pr'])
             fc2 = batchNorm(fc2, [0], self.vars['fc2']['bn'], self.phase_train)
 
         with tf.name_scope('out'):
