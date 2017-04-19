@@ -42,7 +42,7 @@ def parametricReLU(x, alpha):
     # http://stackoverflow.com/questions/39975676/how-to-implement-prelu-activation-in-tensorflow
 
     pos = tf.nn.relu(x)
-    neg = tf.matmul(alpha, x - tf.abs(x)) * 0.5
+    neg = alpha * (x - tf.abs(x)) * 0.5
 
     return pos + neg
 
@@ -83,8 +83,6 @@ def bnInitialization(n_out):
 
 def preluInitialization(n_out):
     return tf.Variable(tf.constant(0.0, shape=[n_out]), name='alpha', dtype=tf.float32)
-
-
 
 
 def batchNorm(x, axes, vars, phase_train):
