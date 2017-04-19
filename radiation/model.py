@@ -11,10 +11,10 @@ def pool2d(x, k=2, l=2):
     return tf.nn.max_pool(x, ksize=[1, k, l, 1], strides=[1, k, l, 1], padding='SAME')
 
 
-def ReLU(x):
+def ReLU(x, alpha):
     # return tf.nn.relu(x)
     # return leakyReLU(x, 0.001)
-    return parametricReLU(x)
+    return parametricReLU(x, alpha)
 
 
 def Sigmoid(x):
@@ -38,18 +38,11 @@ def biasInitialization(a, bstddev):
     # return tf.Variable(tf.zeros([a]))
 
 
-def parametricReLU(_x):
+def parametricReLU(x, alpha):
     # http://stackoverflow.com/questions/39975676/how-to-implement-prelu-activation-in-tensorflow
-    print('estoy triste')
 
-    print(_x.get_shape()[-1])
-
-    alphas = tf.get_variable('alpha', _x.get_shape()[-1],
-                             initializer=tf.constant_initializer(0.0),
-                             dtype=tf.float32)
-
-    pos = tf.nn.relu(_x)
-    neg = tf.matmul(alphas, _x - tf.abs(_x)) * 0.5
+    pos = tf.nn.relu(x)
+    neg = tf.matmul(alpha, x - tf.abs(x)) * 0.5
 
     return pos + neg
 
@@ -88,7 +81,9 @@ def bnInitialization(n_out):
 
         return current
 
-#def preluInitialization()
+def preluInitialization(n_out):
+    return tf.Variable(tf.constant(0.0, shape=[n_out]), name='alpha', dtype=tf.float32)
+
 
 
 
@@ -164,36 +159,42 @@ class RadNetModel(object):
                 current['w'] = weightInitilization5(1, 1, 1, c0_size, weight_stddev)
                 current['b'] = biasInitialization(c0_size, bias_stddev)
                 current['bn'] = bnInitialization(c0_size)
+                current['pr'] = preluInitialization(c0_size)
                 var['conv0'] = current
             with tf.variable_scope('conv1'):
                 current = dict()
                 current['w'] = weightInitilization5(3, 3, c0_size, c1_size, weight_stddev)
                 current['b'] = biasInitialization(c1_size, bias_stddev)
                 current['bn'] = bnInitialization(c1_size)
+                current['pr'] = preluInitialization(c1_size)
                 var['conv1'] = current
             with tf.variable_scope('conv2'):
                 current = dict()
                 current['w'] = weightInitilization5(3, 3, c1_size, c2_size, weight_stddev)
                 current['b'] = biasInitialization(c2_size, bias_stddev)
                 current['bn'] = bnInitialization(c2_size)
+                current['pr'] = preluInitialization(c2_size)
                 var['conv2'] = current
             with tf.variable_scope('conv22'):
                 current = dict()
                 current['w'] = weightInitilization5(3, 3, c2_size, c2_size, weight_stddev)
                 current['b'] = biasInitialization(c2_size, bias_stddev)
                 current['bn'] = bnInitialization(c2_size)
+                current['pr'] = preluInitialization(c2_size)
                 var['conv22'] = current
             with tf.variable_scope('conv3'):
                 current = dict()
                 current['w'] = weightInitilization5(3, 3, c2_size, c3_size, weight_stddev)
                 current['b'] = biasInitialization(c3_size, bias_stddev)
                 current['bn'] = bnInitialization(c3_size)
+                current['pr'] = preluInitialization(c3_size)
                 var['conv3'] = current
             with tf.variable_scope('conv33'):
                 current = dict()
                 current['w'] = weightInitilization5(3, 3, c3_size, c3_size, weight_stddev)
                 current['b'] = biasInitialization(c3_size, bias_stddev)
                 current['bn'] = bnInitialization(c3_size)
+                current['pr'] = preluInitialization(c3_size)
                 var['conv33'] = current
             """
             with tf.variable_scope('conv4'):
@@ -246,7 +247,7 @@ class RadNetModel(object):
         with tf.name_scope('conv0'):
             #1x1 conv layer https://www.quora.com/What-is-a-1X1-convolution
             conv0 = conv2d(input_batch, self.vars['conv0']['w'], self.vars['conv0']['b'], strides=1, padding="VALID")
-            conv0 = ReLU(conv0)
+            conv0 = ReLU(conv0, self.vars['conv0']['pr'])
             conv0 = batchNorm(conv0, [0, 1, 2], self.vars['conv0']['bn'], self.phase_train)
             #conv0 = pool2d(conv0, k=1)
             print(conv0.get_shape())
@@ -255,32 +256,32 @@ class RadNetModel(object):
             conv1 = batchNorm(conv1, [0, 1, 2], self.vars['conv1']['bn'], self.phase_train)
             print(conv1.get_shape())
             conv1 = pool2d(conv1, k=1, l=1)
-            conv1 = ReLU(conv1)
+            conv1 = ReLU(conv1, self.vars['conv1']['pr'])
             print(conv1.get_shape())
         with tf.name_scope('conv2'):
             conv2 = conv2d(conv1, self.vars['conv2']['w'], self.vars['conv2']['b'], strides=1)
             print(conv2.get_shape())
             conv2 = pool2d(conv2, k=1, l=1)
-            conv2 = ReLU(conv2)
+            conv2 = ReLU(conv2, self.vars['conv2']['pr'])
             conv2 = batchNorm(conv2, [0, 1, 2], self.vars['conv2']['bn'], self.phase_train)
             print(conv2.get_shape())
         with tf.name_scope('conv22'):
             conv2 = conv2d(conv2, self.vars['conv22']['w'], self.vars['conv22']['b'], strides=1)
             print(conv2.get_shape())
             conv2 = pool2d(conv2, k=2, l=2)
-            conv2 = ReLU(conv2)
+            conv2 = ReLU(conv2, self.vars['conv22']['pr'])
             conv2 = batchNorm(conv2, [0, 1, 2], self.vars['conv22']['bn'], self.phase_train)
             print(conv2.get_shape())
         with tf.name_scope('conv3'):
             conv3 = conv2d(conv2, self.vars['conv3']['w'], self.vars['conv3']['b'], strides=1)
             conv3 = pool2d(conv3, k=2, l=2)
-            conv3 = ReLU(conv3)
+            conv3 = ReLU(conv3, self.vars['conv3']['pr'])
             conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv3']['bn'], self.phase_train)
             print(conv3.get_shape())
         with tf.name_scope('conv33'):
             conv3 = conv2d(conv3, self.vars['conv33']['w'], self.vars['conv33']['b'], strides=1)
             conv3 = pool2d(conv3, k=2, l=2)
-            conv3 = ReLU(conv3)
+            conv3 = ReLU(conv3, self.vars['conv33']['pr'])
             conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv33']['bn'], self.phase_train)
 
             print(conv3.get_shape())
