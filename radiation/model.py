@@ -38,13 +38,18 @@ def biasInitialization(a, bstddev):
     # return tf.Variable(tf.zeros([a]))
 
 
-def parametricReLU(_x):
+def parametricReLU(_x, alfa):
     # http://stackoverflow.com/questions/39975676/how-to-implement-prelu-activation-in-tensorflow
+    print('estoy triste')
+
+    print(_x.get_shape()[-1])
+
     alphas = tf.get_variable('alpha', _x.get_shape()[-1],
-                       initializer=tf.constant_initializer(0.0),
-                        dtype=tf.float32)
+                             initializer=tf.constant_initializer(0.0),
+                             dtype=tf.float32)
+
     pos = tf.nn.relu(_x)
-    neg = alphas * (_x - abs(_x)) * 0.5
+    neg = tf.matmul(alphas, _x - tf.abs(_x)) * 0.5
 
     return pos + neg
 
@@ -83,6 +88,7 @@ def bnInitialization(n_out):
 
         return current
 
+#def preluInitialization()
 
 
 
