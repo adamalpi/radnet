@@ -399,4 +399,3 @@ class FileReader(object):
         return self.threads
 
 
-# Script for determining the max, min, mean and std

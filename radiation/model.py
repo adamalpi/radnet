@@ -37,6 +37,16 @@ def biasInitialization(a, bstddev):
     # return tf.Variable(tf.zeros([a]))
 
 
+def parametricReLU(_x):
+    # http://stackoverflow.com/questions/39975676/how-to-implement-prelu-activation-in-tensorflow
+    alphas = tf.get_variable('alpha', _x.get_shape()[-1],
+                       initializer=tf.constant_initializer(0.0),
+                        dtype=tf.float32)
+    pos = tf.nn.relu(_x)
+    neg = alphas * (_x - abs(_x)) * 0.5
+
+    return pos + neg
+
 def leakyReLU(x, alpha=0., max_value=None):
     '''Rectified linear unit
 
@@ -114,6 +124,7 @@ c2_size = 256
 c3_size = 512
 c34_size = 2048
 c4_size = 4096
+
 fc1_size = 2048
 fc2_size = 256
 out_size = 96
@@ -228,8 +239,8 @@ class RadNetModel(object):
         with tf.name_scope('conv0'):
             #1x1 conv layer https://www.quora.com/What-is-a-1X1-convolution
             conv0 = conv2d(input_batch, self.vars['conv0']['w'], self.vars['conv0']['b'], strides=1, padding="VALID")
-            conv0 = batchNorm(conv0, [0, 1, 2], self.vars['conv0']['bn'], self.phase_train)
             conv0 = ReLU(conv0)
+            conv0 = batchNorm(conv0, [0, 1, 2], self.vars['conv0']['bn'], self.phase_train)
             #conv0 = pool2d(conv0, k=1)
             print(conv0.get_shape())
         with tf.name_scope('conv1'):
@@ -241,29 +252,30 @@ class RadNetModel(object):
             print(conv1.get_shape())
         with tf.name_scope('conv2'):
             conv2 = conv2d(conv1, self.vars['conv2']['w'], self.vars['conv2']['b'], strides=1)
-            conv2 = batchNorm(conv2, [0, 1, 2], self.vars['conv2']['bn'], self.phase_train)
             print(conv2.get_shape())
             conv2 = pool2d(conv2, k=1, l=1)
             conv2 = ReLU(conv2)
+            conv2 = batchNorm(conv2, [0, 1, 2], self.vars['conv2']['bn'], self.phase_train)
             print(conv2.get_shape())
         with tf.name_scope('conv22'):
             conv2 = conv2d(conv2, self.vars['conv22']['w'], self.vars['conv22']['b'], strides=1)
-            conv2 = batchNorm(conv2, [0, 1, 2], self.vars['conv22']['bn'], self.phase_train)
             print(conv2.get_shape())
             conv2 = pool2d(conv2, k=2, l=2)
             conv2 = ReLU(conv2)
+            conv2 = batchNorm(conv2, [0, 1, 2], self.vars['conv22']['bn'], self.phase_train)
             print(conv2.get_shape())
         with tf.name_scope('conv3'):
             conv3 = conv2d(conv2, self.vars['conv3']['w'], self.vars['conv3']['b'], strides=1)
-            conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv3']['bn'], self.phase_train)
             conv3 = pool2d(conv3, k=2, l=2)
             conv3 = ReLU(conv3)
+            conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv3']['bn'], self.phase_train)
             print(conv3.get_shape())
         with tf.name_scope('conv33'):
             conv3 = conv2d(conv3, self.vars['conv33']['w'], self.vars['conv33']['b'], strides=1)
-            conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv33']['bn'], self.phase_train)
             conv3 = pool2d(conv3, k=2, l=2)
             conv3 = ReLU(conv3)
+            conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv33']['bn'], self.phase_train)
+
             print(conv3.get_shape())
         """
         with tf.name_scope('conv4'):
@@ -286,14 +298,15 @@ class RadNetModel(object):
             # Reshape conv3 output to fit fully connected layer input
             fc1 = tf.reshape(conv3, [-1, self.vars['fc1']['w'].get_shape().as_list()[0]])
             fc1 = tf.add(tf.matmul(fc1, self.vars['fc1']['w']), self.vars['fc1']['b'])
-            fc1 = batchNorm(fc1, [0], self.vars['fc1']['bn'], self.phase_train)
             fc1 = ReLU(fc1)
+            fc1 = batchNorm(fc1, [0], self.vars['fc1']['bn'], self.phase_train)
 
             #print(fc1.get_shape())
         with tf.name_scope('fc2'):
             fc2 = tf.add(tf.matmul(fc1, self.vars['fc2']['w']), self.vars['fc2']['b'])
-            fc2 = batchNorm(fc2, [0], self.vars['fc2']['bn'], self.phase_train)
             fc2 = ReLU(fc2)
+            fc2 = batchNorm(fc2, [0], self.vars['fc2']['bn'], self.phase_train)
+
         with tf.name_scope('out'):
             out = tf.add(tf.matmul(fc2, self.vars['out']['w']), self.vars['out']['b'], name="output_node")
         return out
@@ -325,7 +338,7 @@ class RadNetModel(object):
             loss = tf.reduce_mean(tf.squared_difference(pred_output, real_output))
             return id_file, real_output, pred_output, loss
 
-    def huber_loss(self, y_true, y_pred, max_grad=.4):
+    def huber_loss(self, y_true, y_pred, max_grad=1.):
         """Calculates the huber loss.
         http://stackoverflow.com/questions/39106732/how-do-i-combine-tf-absolute-and-tf-square-to-create-the-huber-loss-function-in
 
