@@ -325,7 +325,7 @@ class RadNetModel(object):
             loss = tf.reduce_mean(tf.squared_difference(pred_output, real_output))
             return id_file, real_output, pred_output, loss
 
-    def huber_loss(self, y_true, y_pred, max_grad=.7):
+    def huber_loss(self, y_true, y_pred, max_grad=.4):
         """Calculates the huber loss.
         http://stackoverflow.com/questions/39106732/how-do-i-combine-tf-absolute-and-tf-square-to-create-the-huber-loss-function-in
 
