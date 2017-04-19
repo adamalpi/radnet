@@ -108,14 +108,14 @@ def batchNorm(x, axes, vars, phase_train):
         normed = tf.nn.batch_normalization(x, mean, var, vars['beta'], vars['gamma'], 1e-3)
     return normed
 
-c0_size = 128
-c1_size = 256
-c2_size = 512
-c3_size = 1024
+c0_size = 64
+c1_size = 128
+c2_size = 256
+c3_size = 512
 c34_size = 2048
 c4_size = 4096
 fc1_size = 2048
-fc2_size = 512
+fc2_size = 256
 out_size = 96
 weight_stddev = 0.3
 bias_stddev = 0.03
@@ -177,6 +177,7 @@ class RadNetModel(object):
                 current['b'] = biasInitialization(c3_size, bias_stddev)
                 current['bn'] = bnInitialization(c3_size)
                 var['conv33'] = current
+            """
             with tf.variable_scope('conv4'):
                 current = dict()
                 current['w'] = weightInitilization5(3, 3, c3_size, c34_size, weight_stddev)
@@ -189,13 +190,13 @@ class RadNetModel(object):
                 current['b'] = biasInitialization(c4_size, bias_stddev)
                 current['bn'] = bnInitialization(c4_size)
                 var['conv5'] = current
-
+            """
 
 
             with tf.variable_scope('fc1'):
                 current = dict()
 
-                current['w'] = weightInitilization3(2 * 2 * c4_size, fc1_size, weight_stddev)
+                current['w'] = weightInitilization3(2 * 2 * c3_size, fc1_size, weight_stddev)
                 current['b'] = biasInitialization(fc1_size, bias_stddev)
                 current['bn'] = bnInitialization(fc1_size)
                 var['fc1'] = current
@@ -255,7 +256,7 @@ class RadNetModel(object):
         with tf.name_scope('conv3'):
             conv3 = conv2d(conv2, self.vars['conv3']['w'], self.vars['conv3']['b'], strides=1)
             conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv3']['bn'], self.phase_train)
-            conv3 = pool2d(conv3, k=1, l=1)
+            conv3 = pool2d(conv3, k=2, l=2)
             conv3 = ReLU(conv3)
             print(conv3.get_shape())
         with tf.name_scope('conv33'):
@@ -264,6 +265,7 @@ class RadNetModel(object):
             conv3 = pool2d(conv3, k=2, l=2)
             conv3 = ReLU(conv3)
             print(conv3.get_shape())
+        """
         with tf.name_scope('conv4'):
             conv4 = conv2d(conv3, self.vars['conv4']['w'], self.vars['conv4']['b'], strides=1)
             conv4 = batchNorm(conv4, [0, 1, 2], self.vars['conv4']['bn'], self.phase_train)
@@ -278,11 +280,11 @@ class RadNetModel(object):
             conv5 = pool2d(conv5, k=2, l=2)
             conv5 = ReLU(conv5)
             print(conv5.get_shape())
-
+        """
 
         with tf.name_scope('fc1'):
             # Reshape conv3 output to fit fully connected layer input
-            fc1 = tf.reshape(conv5, [-1, self.vars['fc1']['w'].get_shape().as_list()[0]])
+            fc1 = tf.reshape(conv3, [-1, self.vars['fc1']['w'].get_shape().as_list()[0]])
             fc1 = tf.add(tf.matmul(fc1, self.vars['fc1']['w']), self.vars['fc1']['b'])
             fc1 = batchNorm(fc1, [0], self.vars['fc1']['bn'], self.phase_train)
             fc1 = ReLU(fc1)
