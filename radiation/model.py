@@ -307,7 +307,7 @@ class RadNetModel(object):
 
         with tf.name_scope('fc1'):
             # Reshape conv3 output to fit fully connected layer input
-            fc1 = tf.reshape(conv3, [-1, self.vars['fc1']['w'].get_shape().as_list()[0]])
+            fc1 = tf.reshape(conv5, [-1, self.vars['fc1']['w'].get_shape().as_list()[0]])
             fc1 = tf.add(tf.matmul(fc1, self.vars['fc1']['w']), self.vars['fc1']['b'])
             fc1 = ReLU(fc1, self.vars['fc1']['pr'])
             fc1 = batchNorm(fc1, [0], self.vars['fc1']['bn'], self.phase_train)
