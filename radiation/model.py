@@ -118,12 +118,12 @@ def batchNorm(x, axes, vars, phase_train):
         normed = tf.nn.batch_normalization(x, mean, var, vars['beta'], vars['gamma'], 1e-3)
     return normed
 
-c0_size = 64
+c0_size = 128
 c1_size = 128
 c2_size = 256
 c3_size = 512
 c34_size = 1024
-c4_size = 512
+c4_size = 1024
 
 fc1_size = 2048
 fc2_size = 256
@@ -275,13 +275,13 @@ class RadNetModel(object):
             print(conv2.get_shape())
         with tf.name_scope('conv3'):
             conv3 = conv2d(conv2, self.vars['conv3']['w'], self.vars['conv3']['b'], strides=1)
-            conv3 = pool2d(conv3, k=2, l=2)
+            conv3 = pool2d(conv3, k=1, l=1)
             conv3 = ReLU(conv3, self.vars['conv3']['pr'])
             conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv3']['bn'], self.phase_train)
             print(conv3.get_shape())
         with tf.name_scope('conv33'):
             conv3 = conv2d(conv3, self.vars['conv33']['w'], self.vars['conv33']['b'], strides=1)
-            conv3 = pool2d(conv3, k=1, l=1)
+            conv3 = pool2d(conv3, k=2, l=2)
             conv3 = ReLU(conv3, self.vars['conv33']['pr'])
             conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv33']['bn'], self.phase_train)
 
