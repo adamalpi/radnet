@@ -320,6 +320,7 @@ class RadNetModel(object):
 
         with tf.name_scope('out'):
             out = tf.add(tf.matmul(fc2, self.vars['out']['w']), self.vars['out']['b'], name="output_node")
+            print(out.get_shape())
         return out
 
     def loss(self, input_batch, real_output):
