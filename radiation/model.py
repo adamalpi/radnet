@@ -194,7 +194,7 @@ class RadNetModel(object):
                 current['bn'] = bnInitialization(c3_size)
                 current['pr'] = preluInitialization(c3_size)
                 var['conv33'] = current
-
+            """
             with tf.variable_scope('conv4'):
                 current = dict()
                 current['w'] = weightInitilization5(3, 3, c3_size, c34_size, weight_stddev)
@@ -209,13 +209,13 @@ class RadNetModel(object):
                 current['bn'] = bnInitialization(c4_size)
                 current['pr'] = preluInitialization(c4_size)
                 var['conv5'] = current
-
+            """
 
 
             with tf.variable_scope('fc1'):
                 current = dict()
 
-                current['w'] = weightInitilization3(2 * 2 * c4_size, fc1_size, weight_stddev)
+                current['w'] = weightInitilization3(2 * 2 * c3_size, fc1_size, weight_stddev)
                 current['b'] = biasInitialization(fc1_size, bias_stddev)
                 current['bn'] = bnInitialization(fc1_size)
                 current['pr'] = preluInitialization(fc1_size)
@@ -286,7 +286,7 @@ class RadNetModel(object):
             conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv33']['bn'], self.phase_train)
 
             print(conv3.get_shape())
-
+        """
         with tf.name_scope('conv4'):
             conv4 = conv2d(conv3, self.vars['conv4']['w'], self.vars['conv4']['b'], strides=1)
             print(conv4.get_shape())
@@ -303,11 +303,11 @@ class RadNetModel(object):
             conv5 = batchNorm(conv5, [0, 1, 2], self.vars['conv5']['bn'], self.phase_train)
 
             print(conv5.get_shape())
-
+        """
 
         with tf.name_scope('fc1'):
             # Reshape conv3 output to fit fully connected layer input
-            fc1 = tf.reshape(conv5, [-1, self.vars['fc1']['w'].get_shape().as_list()[0]])
+            fc1 = tf.reshape(conv3, [-1, self.vars['fc1']['w'].get_shape().as_list()[0]])
             fc1 = tf.add(tf.matmul(fc1, self.vars['fc1']['w']), self.vars['fc1']['b'])
             fc1 = ReLU(fc1, self.vars['fc1']['pr'])
             fc1 = batchNorm(fc1, [0], self.vars['fc1']['bn'], self.phase_train)

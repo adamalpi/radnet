@@ -149,8 +149,8 @@ R:  min -255.9600440474 max 78.3198382662 mean -1.3758656541 std 6.1112494507
 T:  min 100.0000000000 max 355.5721906214 mean 230.1788102309 Td 46.5063403685
 H:  min -2720.3344538111 max 1848.3667831706 mean 4.2050377031 Hd 13.4852605066
 """
-"""
-data 7
+
+# data 7
 minT = 100.0000000000
 maxT = 355.5721906214
 meanT = 230.1788102309
@@ -171,14 +171,15 @@ stdST = 37.5368706325
 
 meanCO2 = 0.0017284657
 stdCO2 = 0.0023850203
-
+"""
 ST:  min 100.0000000000 max 300.0000000000 mean 300.0000000000 std 0.0000000000
 C:  min 0.0003000000 max 0.0003000000 mean 0.0003000000 std 0.0000000000
 R:  min -124.5939367995 max 41.6578092115 mean -2.2024066011 std 6.8566207055
 T:  min 100.0000000000 max 330.6810650081 mean 262.0361042300 Td 27.4560401312
 H:  min 0.0000000011 max 120.0698121190 mean 4.2776340796 Hd 6.1596216695
 """
-
+"""
+data v8
 minT = 100.0000000000
 maxT = 330.6810650081
 meanT = 262.0361042300
@@ -199,7 +200,7 @@ stdST = 0.0000000000
 
 meanCO2 = 0.0003000000
 stdCO2 = 0.0000000000
-
+"""
 epoch = 0
 
 
@@ -271,8 +272,8 @@ def load_data_samples(files):
                 data = []
                 label = []
 
-                #data.append((input['co2']))
-                #data.append((input['surface_temperature']))
+                data.append((input['co2']))
+                data.append((input['surface_temperature']))
                 for i in range (0, len(input['radiation'])):
                     data.append(normalizeT(input['air_temperature'][i]))
                     data.append(normalizeH(input['humidity'][i]))
