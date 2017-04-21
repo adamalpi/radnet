@@ -289,7 +289,7 @@ def load_data_samples(files):
                 #    data.append(normalizeST(input['surface_temperature']))
 
                 #fill last 2 values with 0
-                for _ in range(0, 196-192):
+                for _ in range(0, 196-194):
                     data.append(0.0)
 
                 yield data, label, [id]
