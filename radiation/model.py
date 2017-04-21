@@ -275,7 +275,7 @@ class RadNetModel(object):
             print(conv2.get_shape())
         with tf.name_scope('conv3'):
             conv3 = conv2d(conv2, self.vars['conv3']['w'], self.vars['conv3']['b'], strides=1)
-            conv3 = pool2d(conv3, k=1, l=1)
+            conv3 = pool2d(conv3, k=2, l=2)
             conv3 = ReLU(conv3, self.vars['conv3']['pr'])
             conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv3']['bn'], self.phase_train)
             print(conv3.get_shape())
