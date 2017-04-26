@@ -14,18 +14,33 @@ class RadNet:
     """ Class for loading and fetching the model for getting predictions.
 
     """
+
+    # TODO: the names of the items of this dict should be changed to match the names of the
+    # variables used in the program data calls this class.
     STATISTIC_PARAMS = {
         "air_temperature": {
-            "min": -80.0000000000,
-            "max": 29.9879614723,
-            "mean": -3.8945928534,
-            "std": 33.3932939425
+            "min": 100.0000000000,
+            "max": 355.5721906214,
+            "mean": 230.1788102309,
+            "std": 46.5063403685
         },
-        "air_pressure_on_interface_levels": {
-            "min": 0.0000000010,
-            "max": 27.2849571304,
-            "mean": 13.1466227845,
-            "std": 9.3315113828
+        "humidity": {
+            "min": -2720.3344538111,
+            "max": 1848.3667831706,
+            "mean": 4.2050377031,
+            "std": 13.4852605066
+        },
+        "surface_temperature": {
+            "min": 100.0000000000,
+            "max": 333.1499946801,
+            "mean": 268.1406929063,
+            "std": 37.5368706325
+        },
+        "CO2": {
+            "min": 0.0000000000,
+            "max": 0.0099999904,
+            "mean": 0.0017284657,
+            "std": 0.0023850203
         }
     }
 
@@ -65,11 +80,11 @@ class RadNet:
             # we are just fetching a parameter.
             self.train_flag_node = self.sess.graph.get_tensor_by_name("create_model/train_bool_node:0")
 
-    def predict(self, sample, output_size=26):
+    def predict(self, sample, output_size=96):
         """ Method for fetching the model
 
-        :param sample: array[64] with the correct input of the model
-        :return prediction: array[26] with the radiation level for each of the 26 layers
+        :param sample: array[196] with the correct input of the model
+        :return prediction: array[96] with the radiation level for each of the 26 layers
         """
 
         # Line to be uncommented with the climt integration
@@ -87,8 +102,8 @@ class RadNet:
 
         return prediction
 
-    def __interpolate(self, inputs, output_size):
-        """
+    def __interpolate(self, inputs, output_size=96):
+        """ spline interpolation for reducing/augmenting the number of levels.
 
         :param inputs: array[arrays] with each variable to be interpolated
         :param output_size: number of layers to be interpolated, 100 by default

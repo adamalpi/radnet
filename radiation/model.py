@@ -2,58 +2,95 @@ import tensorflow as tf
 
 
 def conv2d(x, W, b, strides=1, padding='SAME'):
+    """ Wrapper for using the applying a 2d conv with the tensorflow library
+     and then add a bias.
+    """
     x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding=padding)
     x = tf.nn.bias_add(x, b)
     return x
 
 
 def pool2d(x, k=2, l=2):
+    """ Wrapper for a max pool filter
+    """
     return tf.nn.max_pool(x, ksize=[1, k, l, 1], strides=[1, k, l, 1], padding='SAME')
 
 
 def ReLU(x, alpha):
+    """ Wrapper for using a ReLU activation function
+    TODO: Implement an option for choosing between relu, leaky relu and prelu.
+    """
     # return tf.nn.relu(x)
     # return leakyReLU(x, 0.001)
     return parametricReLU(x, alpha)
 
 
-def Sigmoid(x):
-    return tf.nn.sigmoid(x)
-
-
 def weightInitilization5(a, b, c, d, wstddev):
+    """ Inits the weights for the convolutional layers. The initialization is using a
+    normal distribution with a given standard deviation.
+
+    :param a: height of filter
+    :param b: width of filter
+    :param c: in size
+    :param d: out size
+    :param wstddev: standard deviation
+    :return:
+    """
     return tf.Variable(tf.random_normal([a, b, c, d], stddev=wstddev))
 
 
 def weightInitilization3(a, b, wstddev):
-    #xavier initialization improves the starting of the training
+    """ Inits the wights for the fully connected layers.
+    The the initialization is using xavier initialization that improves the convergence
+    considerably.
+
+    :param a: In size
+    :param b: Out size
+    :return:
+    """
+    # xavier initialization improves the starting of the training
     # http://stackoverflow.com/questions/33640581/how-to-do-xavier-initialization-on-tensorflow
     return tf.get_variable("weight", shape=[a, b],
                         initializer=tf.contrib.layers.xavier_initializer())
+
+    # earlier solution with random initialization.
     #return tf.Variable(tf.random_normal([a, b], stddev=wstddev))
 
-# in the lecture 5 slide 38 set b to small value i.e. 0.1
 def biasInitialization(a, bstddev):
+    """ Initialization of the bias
+    In the lecture 5 slide 38 set b to small value i.e. 0.1 of Jim's slides.
+
+    :param a:
+    :param bstddev:
+    :return: x
+    """
     return tf.Variable(tf.random_normal([a], stddev=bstddev, mean=0.1))
     # return tf.Variable(tf.zeros([a]))
 
 
 def parametricReLU(x, alpha):
-    # http://stackoverflow.com/questions/39975676/how-to-implement-prelu-activation-in-tensorflow
-    # https://github.com/tflearn/tflearn/blob/4ba8c8d78bf1bbdfc595bf547bad30580cb4c20b/tflearn/activations.py#L191
+    """ PReLU
+    Ref.: http://stackoverflow.com/questions/39975676/how-to-implement-prelu-activation-in-tensorflow
+    Ref.: https://github.com/tflearn/tflearn/blob/4ba8c8d78bf1bbdfc595bf547bad30580cb4c20b/tflearn/activations.py#L191
+
+    :param x:
+    :param alpha: trainable variable for the negative values
+    :return:
+    """
     pos = tf.nn.relu(x)
     neg = alpha * (x - tf.abs(x)) * 0.5
 
     return pos + neg
 
 def leakyReLU(x, alpha=0., max_value=None):
-    '''Rectified linear unit
+    """ leakyReLU
 
     # Ref.: https://groups.google.com/a/tensorflow.org/forum/#!topic/discuss/V6aeBw4nlaE
-    # Arguments
-        alpha: slope of negative section.
-        max_value: saturation threshold.
-    '''
+
+    :param alpha: slope of negative section. Hyperparameter
+    :param max_value: saturation threshold.
+    :return: x
+    """
 
     if alpha != 0.:
         negative_part = tf.nn.relu(-x)
@@ -68,6 +105,11 @@ def leakyReLU(x, alpha=0., max_value=None):
 
 
 def bnInitialization(n_out):
+    """ Batch normalization initialization of the variables of the layer.
+
+    :param n_out:
+    :return:
+    """
     current = dict()
     with tf.variable_scope('bn'):
         current['beta'] = tf.Variable(tf.constant(0.0, shape=[n_out]), name='beta')
@@ -82,6 +124,11 @@ def bnInitialization(n_out):
         return current
 
 def preluInitialization(n_out):
+    """ Initialization of Alpha for the PReLU
+
+    :param n_out:
+    :return:
+    """
     return tf.Variable(tf.constant(0.0, shape=[n_out]), name='alpha', dtype=tf.float32)
 
 
@@ -89,20 +136,17 @@ def batchNorm(x, axes, vars, phase_train):
     """
     Batch normalization on convolutional maps.
     Ref.: http://stackoverflow.com/questions/33949786/how-could-i-use-batch-normalization-in-tensorflow
-    https://gist.github.com/tomokishii/0ce3bdac1588b5cca9fa5fbdf6e1c412
-    http://r2rt.com/implementing-batch-normalization-in-tensorflow.html
-    Args:
-        x:           Tensor, 2d input maps
-        n_out:       integer, depth of input maps
-        phase_train: boolean tf.Varialbe, true indicates training phase
-        scope:       string, variable scope
-    Return:
-        normed:      batch-normalized maps
+    Ref.: https://gist.github.com/tomokishii/0ce3bdac1588b5cca9fa5fbdf6e1c412
+    Ref.: http://r2rt.com/implementing-batch-normalization-in-tensorflow.html
+
+    :param x: Tensor, 2d input maps
+    :param n_out: integer, depth of input maps
+    :param phase_train: boolean tf.Varialbe, true indicates training phase
+    :param scope: string, variable scope
+
+    :return normed: batch-normalized maps
     """
     mean, var = tf.nn.moments(x, axes, name='moments')
-
-    #assign_mean = vars['mean'].assign(mean)
-    #assign_var = vars['var'].assign(var)
 
     ema = tf.train.ExponentialMovingAverage(decay=0.5)
 
@@ -202,6 +246,7 @@ class RadNetModel(object):
                 current['bn'] = bnInitialization(c34_size)
                 current['pr'] = preluInitialization(c34_size)
                 var['conv4'] = current
+
             with tf.variable_scope('conv5'):
                 current = dict()
                 current['w'] = weightInitilization5(3, 3, c34_size, c4_size, weight_stddev)
@@ -295,6 +340,7 @@ class RadNetModel(object):
             conv4 = batchNorm(conv4, [0, 1, 2], self.vars['conv4']['bn'], self.phase_train)
 
             print(conv4.get_shape())
+
         with tf.name_scope('conv5'):
             conv5 = conv2d(conv4, self.vars['conv5']['w'], self.vars['conv5']['b'], strides=1)
             print(conv5.get_shape())
@@ -326,6 +372,8 @@ class RadNetModel(object):
     def loss(self, input_batch, real_output):
         ''' Creates a RadNet network and returns the autoencoding loss.
             The variables are all scoped to the given name.
+
+            TODO: Implement an option to choose between mse loss and huber loss.
         '''
         with tf.name_scope('radnet'):
             output = self._create_network(input_batch)
@@ -342,17 +390,23 @@ class RadNetModel(object):
                 return loss
 
     def predict(self, input, real_output, id_file):
+        """ Function for calculating prediction without backpropagating the error
+
+        :param input:
+        :param real_output:
+        :param id_file:
+        :return:
+        """
         with tf.name_scope('radnet'):
             pred_output = self._create_network(input)
 
-            # Huber loss
-            #loss = self.huber_loss(real_output, pred_output)
-            loss = tf.reduce_mean(tf.squared_difference(pred_output, real_output))
-            return id_file, real_output, pred_output, loss
+            # the loss here is mse because this call is made online for testing, not for training
+            mse = tf.reduce_mean(tf.squared_difference(pred_output, real_output))
+            return id_file, real_output, pred_output, mse
 
     def huber_loss(self, y_true, y_pred, max_grad=1.):
         """Calculates the huber loss.
-        http://stackoverflow.com/questions/39106732/how-do-i-combine-tf-absolute-and-tf-square-to-create-the-huber-loss-function-in
+        Ref.: http://stackoverflow.com/questions/39106732/how-do-i-combine-tf-absolute-and-tf-square-to-create-the-huber-loss-function-in
 
         Parameters
         ----------
