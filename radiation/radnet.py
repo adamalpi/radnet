@@ -17,26 +17,32 @@ class RadNet:
 
     # TODO: the names of the items of this dict should be changed to match the names of the
     # variables used in the program data calls this class.
+
+    HUMIDITY = "humidity"
+    AIR_TEMPERATURE = "air_temperature"
+    SURFACE_TEMPERATURE = "surface_temperature"
+    CO2 = "CO2"
+
     STATISTIC_PARAMS = {
-        "air_temperature": {
+        AIR_TEMPERATURE: {
             "min": 100.0000000000,
             "max": 355.5721906214,
             "mean": 230.1788102309,
             "std": 46.5063403685
         },
-        "humidity": {
+        HUMIDITY: {
             "min": -2720.3344538111,
             "max": 1848.3667831706,
             "mean": 4.2050377031,
             "std": 13.4852605066
         },
-        "surface_temperature": {
+        SURFACE_TEMPERATURE: {
             "min": 100.0000000000,
             "max": 333.1499946801,
             "mean": 268.1406929063,
             "std": 37.5368706325
         },
-        "CO2": {
+        CO2: {
             "min": 0.0000000000,
             "max": 0.0099999904,
             "mean": 0.0017284657,
@@ -54,7 +60,7 @@ class RadNet:
         :param frozen_graph_path: path to the protobuf (.pb) file containing the graph and the value
         of the variables.
         """
-        self.input_size = 26
+        self.input_size = 96
 
         with ops.Graph().as_default():
             output_graph_def = graph_pb2.GraphDef()
@@ -97,29 +103,31 @@ class RadNet:
                 })
 
         # Interpolates de output to the wished value size
-        if len(prediction) != output_size:
-            prediction = self.__interpolate(prediction, output_size)[0]
+        prediction = self.__interpolate(prediction, output_size)
 
         return prediction
 
-    def __interpolate(self, inputs, output_size=96):
+    def __interpolate(self, input, output_size=96):
         """ spline interpolation for reducing/augmenting the number of levels.
 
-        :param inputs: array[arrays] with each variable to be interpolated
-        :param output_size: number of layers to be interpolated, 100 by default
-        :return: array[arrays] with variables for 100 hundred layers
+        :param input: array with a parameter to be interpolated
+        :param output_size: number of layers to be interpolated, 96 by default
+        :return: array[arrays] with variables for 96 hundred layers
         """
+        size = len(input)
+        if size == output_size:
+            return input
+
         data = []
 
-        for input in inputs:
-            size = len(input)
-            # 100 is just a number that shouldn't matter if is changed
-            x = np.linspace(0, 100, size)
-            x_ext = np.linspace(0, 100, output_size)
 
-            func = scipy.interpolate.splrep(x, input, s=0)
-            input_ext = scipy.interpolate.splev(x_ext, func, der=0)
-            data.append(input_ext)
+        # 100 is just a number that shouldn't matter if is changed
+        x = np.linspace(0, 100, size)
+        x_ext = np.linspace(0, 100, output_size)
+
+        func = scipy.interpolate.splrep(x, input, s=0)
+        input_ext = scipy.interpolate.splev(x_ext, func, der=0)
+        data.append(input_ext)
 
         return data
 
@@ -129,32 +137,41 @@ class RadNet:
         :param inputs:
         :return:
         """
-        data = []
+        data = {}
         for key, value in inputs.items():
-            data.append(self.__normalize(
+
+            val = self.__normalize(
                 value,
                 self.STATISTIC_PARAMS[key]['mean'],
-                self.STATISTIC_PARAMS[key]['std']))
+                self.STATISTIC_PARAMS[key]['std'])
 
+            if isinstance(val, np.ndarray):
+                # Interpolate the data into the x parameters per layer.
+                val = self.__interpolate(value)
 
-        # Interpolate the data into the x parameters per layer.
-        data = self.__interpolate(data, self.input_size)
+            data[key] = val
+
         # Transform the matrix into the expected input for the model
-        index = 0
         input = []
-        while (index < self.input_size):
-            for parameter in data:
-                input.append(parameter[index])
-            index += 1
+        input.append(data[self.CO2])
+        input.append(data[self.SURFACE_TEMPERATURE])
+        for i in range(0, self.input_size):
+            input.append(data[self.AIR_TEMPERATURE][i])
+            input.append(data[self.HUMIDITY][i])
 
-        for _ in range(0, (64-len(input)) ):
+        # fill last 2 values with 0
+        # this numbers can be calculated based in the input_size, but I didn't want to do
+        # so for simplicity of the code
+        for _ in range(0, 196 - 194):
             input.append(0.0)
 
         return input
 
     @staticmethod
     def __normalize(x, mean, std):
+        if isinstance(x, list):
+            x = np.array(x)
+        if std == 0:
+            return x
         # return  (x - min) / (max - min) # min max normalization
         return (x - mean) / std  # standardization - zero-mean normalization
-
-
