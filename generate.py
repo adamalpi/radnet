@@ -128,8 +128,10 @@ def main():
         for step in range(args.samples):
 
             # Run the RadNet to predict the next sample.
-            id_file, real_output, pred_output, loss = sess.run(prediction, {reader.queue_switch(): 0,  net.train_phase(): False})
-
+            id_file, real_output, pred_output, loss, input = sess.run(prediction, {reader.queue_switch(): 0,  net.train_phase(): False})
+            print(input)
+            print(pred_output)
+            print(real_output)
             write_pred_file(id_file.tolist()[0][0], real_output.tolist()[0], pred_output.tolist()[0], loss)
             #print(type(real_output))
 

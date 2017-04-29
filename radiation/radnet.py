@@ -103,7 +103,7 @@ class RadNet:
                 })
 
         # Interpolates de output to the wished value size
-        prediction = self.__interpolate(prediction, output_size)
+        prediction = self.__interpolate(prediction.squeeze(), output_size)
 
         return prediction
 
@@ -118,7 +118,6 @@ class RadNet:
         if size == output_size:
             return input
 
-        data = []
 
 
         # 100 is just a number that shouldn't matter if is changed
@@ -127,7 +126,7 @@ class RadNet:
 
         func = scipy.interpolate.splrep(x, input, s=0)
         input_ext = scipy.interpolate.splev(x_ext, func, der=0)
-        data.append(input_ext)
+        data = input_ext
 
         return data
 
@@ -139,17 +138,17 @@ class RadNet:
         """
         data = {}
         for key, value in inputs.items():
+            if isinstance(value, list):
+                value = self.__normalize(
+                    value,
+                    self.STATISTIC_PARAMS[key]['mean'],
+                    self.STATISTIC_PARAMS[key]['std'])
 
-            val = self.__normalize(
-                value,
-                self.STATISTIC_PARAMS[key]['mean'],
-                self.STATISTIC_PARAMS[key]['std'])
 
-            if isinstance(val, np.ndarray):
                 # Interpolate the data into the x parameters per layer.
-                val = self.__interpolate(value)
+                value = self.__interpolate(value.squeeze())
 
-            data[key] = val
+            data[key] = value
 
         # Transform the matrix into the expected input for the model
         input = []
