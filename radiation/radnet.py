@@ -119,6 +119,7 @@ class RadNet:
             return input
 
 
+        print(input)
 
         # 100 is just a number that shouldn't matter if is changed
         x = np.linspace(0, 100, size)
@@ -127,6 +128,7 @@ class RadNet:
         func = scipy.interpolate.splrep(x, input, s=0)
         input_ext = scipy.interpolate.splev(x_ext, func, der=0)
         data = input_ext
+        print(data)
 
         return data
 
@@ -144,8 +146,8 @@ class RadNet:
                     self.STATISTIC_PARAMS[key]['mean'],
                     self.STATISTIC_PARAMS[key]['std'])
 
-
                 # Interpolate the data into the x parameters per layer.
+                print(key)
                 value = self.__interpolate(value.squeeze())
 
             data[key] = value
