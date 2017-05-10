@@ -19,14 +19,17 @@ STARTED_DATESTRING = "{0:%Y-%m-%dT%H-%M-%S}".format(datetime.now())
 
 
 
-def write_pred_file(id_file, original, prediction, loss):
+def write_pred_file(id_file, original, prediction, loss, input):
     results_dir = os.path.join(OUTPUT_DIRECTORY, STARTED_DATESTRING)
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
     with open(results_dir+'/'+str(id_file)+'.csv', 'w') as file:
-        file.write(str(loss) + '\n')
-        for ori, pred in zip(original, prediction):
-            file.write(str(ori)+','+str(pred)+'\n')
+        file.write(str(loss)+','+str(input['co2']) +','+ str(input['surface_temperature'])+',' + '\n')
+        for ori, pred, t, h in zip(original, prediction, input['air_temperature'], input['humidity']):
+            file.write(str(ori)+','+str(pred)+','+str(t)+','+str(h)+'\n')
+
+
+
 
 
 def get_arguments():
@@ -129,10 +132,9 @@ def main():
 
             # Run the RadNet to predict the next sample.
             id_file, real_output, pred_output, loss, input = sess.run(prediction, {reader.queue_switch(): 0,  net.train_phase(): False})
-            print(input)
-            print(pred_output)
-            print(real_output)
-            write_pred_file(id_file.tolist()[0][0], real_output.tolist()[0], pred_output.tolist()[0], loss)
+
+            data_input = reader.decompose_data(input.tolist()[0])
+            write_pred_file(id_file.tolist()[0][0], real_output.tolist()[0], pred_output.tolist()[0], loss, data_input)
             #print(type(real_output))
 
             # Show progress only once per second.

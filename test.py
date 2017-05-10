@@ -397,7 +397,7 @@ def main():
 
     print("my prediction")
     print(prediction)
-    
+
 
 if __name__ == '__main__':
     main()

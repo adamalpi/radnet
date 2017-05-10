@@ -68,6 +68,9 @@ def normalize(x, min, max, mean, std):
     return (x - mean) / std  # standardization - zero-mean normalization
     # return x+100
 
+def denormalize(x, mean, std):
+    return x * std + mean
+
 
 def get_category_cardinality(files):
     """ Deprecated: function used before for identifying the samples based in its name
@@ -131,23 +134,27 @@ def load_data_samples(files):
             id = 0
             for line in f:
                 id += 1
-                input = json.loads(line)
-                # todo normalize the input
-                data = []
-                label = []
+                try:
+                    input = json.loads(line)
+                    # todo normalize the input
+                    data = []
+                    label = []
 
-                data.append((input['co2']))
-                data.append((input['surface_temperature']))
-                for i in range(0, len(input['radiation'])):
-                    data.append(normalizeT(input['air_temperature'][i]))
-                    data.append(normalizeH(input['humidity'][i]))
-                    label.append((input['radiation'][i]))
+                    data.append((input['co2']))
+                    data.append((input['surface_temperature']))
+                    for i in range(0, len(input['radiation'])):
+                        data.append(normalizeT(input['air_temperature'][i]))
+                        data.append(normalizeH(input['humidity'][i]))
+                        label.append((input['radiation'][i]))
 
-                # fill last 2 values with 0
-                for _ in range(0, 196-194):
-                    data.append(0.0)
+                    # fill last 2 values with 0
+                    for _ in range(0, 196 - 194):
+                        data.append(0.0)
 
-                yield data, label, [id]
+                    yield data, label, [id]
+                except ValueError:
+                    print('Value error in file {} and line {}'.format(filename, id))
+
 
 
 class FileReader(object):
@@ -280,5 +287,27 @@ class FileReader(object):
             self.threads.append(thread)
 
         return self.threads
+
+    def decompose_data(self, data):
+
+        levels = 96
+        CO2 = data[0]
+        surface_temperature = data[1]
+        air_temperature = []
+        humidity = []
+        for i in range(2, levels*2+2):
+            if (i % 2) == 0: #even
+                air_temperature.append(denormalize(data[i], meanT, stdT))
+            else:
+                humidity.append(denormalize(data[i], meanH, stdH))
+
+        input_dic = {
+            "surface_temperature": surface_temperature,
+            "co2": CO2,
+            "air_temperature": air_temperature,
+            "humidity": humidity
+        }
+
+        return input_dic
 
 
