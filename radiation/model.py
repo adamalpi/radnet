@@ -322,7 +322,7 @@ class RadNetModel(object):
             conv1 = conv2d(conv0, self.vars['conv1']['w'], self.vars['conv1']['b'], strides=1)
             conv1 = batchNorm(conv1, [0, 1, 2], self.vars['conv1']['bn'], self.phase_train)
             print(conv1.get_shape())
-            conv1 = pool2d(conv1, k=1, l=1)
+            #conv1 = pool2d(conv1, k=1, l=1)
             conv1 = ReLU(conv1, self.vars['conv1']['pr'])
             print(conv1.get_shape())
         with tf.name_scope('conv11'):
@@ -335,7 +335,7 @@ class RadNetModel(object):
         with tf.name_scope('conv2'):
             conv2 = conv2d(conv1, self.vars['conv2']['w'], self.vars['conv2']['b'], strides=1)
             print(conv2.get_shape())
-            conv2 = pool2d(conv2, k=1, l=1)
+            #conv2 = pool2d(conv2, k=1, l=1)
             conv2 = ReLU(conv2, self.vars['conv2']['pr'])
             conv2 = batchNorm(conv2, [0, 1, 2], self.vars['conv2']['bn'], self.phase_train)
             print(conv2.get_shape())
@@ -348,7 +348,7 @@ class RadNetModel(object):
             print(conv2.get_shape())
         with tf.name_scope('conv3'):
             conv3 = conv2d(conv2, self.vars['conv3']['w'], self.vars['conv3']['b'], strides=1)
-            conv3 = pool2d(conv3, k=1, l=1)
+            #conv3 = pool2d(conv3, k=1, l=1)
             conv3 = ReLU(conv3, self.vars['conv3']['pr'])
             conv3 = batchNorm(conv3, [0, 1, 2], self.vars['conv3']['bn'], self.phase_train)
             print(conv3.get_shape())
@@ -361,7 +361,7 @@ class RadNetModel(object):
             
         with tf.name_scope('conv4'):
             conv4 = conv2d(conv3, self.vars['conv4']['w'], self.vars['conv4']['b'], strides=1)
-            conv4 = pool2d(conv4, k=1, l=1)
+            #conv4 = pool2d(conv4, k=1, l=1)
             conv4 = ReLU(conv4, self.vars['conv4']['pr'])
             conv4 = batchNorm(conv4, [0, 1, 2], self.vars['conv4']['bn'], self.phase_train)
             print(conv4.get_shape())
