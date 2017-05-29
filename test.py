@@ -389,14 +389,46 @@ def main():
 
     # Code todo in __call__
 
+    t = list()
+
     for i in range(100):
         start_time = time.time()
         prediction = radnet.predict(input_dic)
         duration = time.time() - start_time
         print('{:10f} sec/prediction'.format(duration))
+        t.append(duration)
 
     print("my prediction")
     print(prediction)
+
+
+    t = np.array(t)
+    print('mean time: {}'.format(np.mean(t)) )
+
+    """
+
+    duration = time.time() - start_time
+    print('{:10f} secs loading the model'.format(duration))
+
+    # Code todo in __call__
+
+    mytime = list()
+
+    for i in range(100):
+        start_time = time.time()
+        prediction = radnet.predict(input_dic)
+        duration = time.time() - start_time
+        print('{:10f} sec/prediction'.format(duration))
+        mytime.append(duration)
+
+    time = np.array(mytime)
+
+    print('mean: {}'.format(np.mean(mytime)))
+
+    print("my prediction")
+    print(prediction)
+
+    """
 
 
 if __name__ == '__main__':
