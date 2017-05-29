@@ -443,7 +443,9 @@ class RadNetModel(object):
 
             # the loss here is mse because this call is made online for testing, not for training
             mse = tf.reduce_mean(tf.squared_difference(pred_output, real_output))
-            return id_file, real_output, pred_output, mse, input
+            mape = tf.multiply(100.0, tf.reduce_mean(tf.abs(tf.divide((real_output - pred_output), real_output))))
+
+            return id_file, real_output, pred_output, mse, mape, input
 
     def huber_loss(self, y_true, y_pred, max_grad=1.):
         """Calculates the huber loss.

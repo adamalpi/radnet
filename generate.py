@@ -19,12 +19,12 @@ STARTED_DATESTRING = "{0:%Y-%m-%dT%H-%M-%S}".format(datetime.now())
 
 
 
-def write_pred_file(id_file, original, prediction, loss, input):
+def write_pred_file(id_file, original, prediction, mse, mape, input):
     results_dir = os.path.join(OUTPUT_DIRECTORY, STARTED_DATESTRING)
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
     with open(results_dir+'/'+str(id_file)+'.csv', 'w') as file:
-        file.write(str(loss)+','+str(input['co2']) +','+ str(input['surface_temperature'])+',' + '\n')
+        file.write(str(mse)+','+str(mape)+','+str(input['co2']) +','+ str(input['surface_temperature'])+',' + '\n')
         for ori, pred, t, h in zip(original, prediction, input['air_temperature'], input['humidity']):
             file.write(str(ori)+','+str(pred)+','+str(t)+','+str(h)+'\n')
 
@@ -124,17 +124,18 @@ def main():
         raise
 
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
-    reader.start_threads(sess)
+    reader.start_threads(sess, n_threads=2)
 
     try:
         last_sample_timestamp = datetime.now()
+        n = 0
         for step in range(args.samples):
-
+            n=n+1
             # Run the RadNet to predict the next sample.
-            id_file, real_output, pred_output, loss, input = sess.run(prediction, {reader.queue_switch(): 0,  net.train_phase(): False})
+            id_file, real_output, pred_output, mse, mape, input = sess.run(prediction, {reader.queue_switch(): 0,  net.train_phase(): False})
 
             data_input = reader.decompose_data(input.tolist()[0])
-            write_pred_file(id_file.tolist()[0][0], real_output.tolist()[0], pred_output.tolist()[0], loss, data_input)
+            write_pred_file(str(id_file.tolist()[0][0])+str(n), real_output.tolist()[0], pred_output.tolist()[0], mse, mape, data_input)
             #print(type(real_output))
 
             # Show progress only once per second.
